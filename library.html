@@ -343,14 +343,12 @@
                     class="heading-font text-3xl sm:text-4xl font-black tracking-tight text-white flex items-center gap-3">
                     <span>Library</span>
                 </h1>
-                <span id="activeCollectionBadge"
-                    class="hidden text-xs sm:text-sm font-semibold px-3 py-1 rounded-full bg-pink-500/20 border border-pink-400/30 text-pink-200">Default Collection</span>
             </div>
 
             <!-- Action Controls, Search & View Controls Row -->
             <div class="pt-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
 
-                <!-- Left: Action Controls (Sync, Folder, Note, Link, Switcher) -->
+                <!-- Left: Action Controls (Active Collection, Refresh) -->
                 <div class="flex flex-wrap items-center gap-2.5">
 
                     <!-- Current Active Collection Pill Button -->
@@ -364,14 +362,6 @@
                         <span id="selectedCollectionDefaultBadge" class="hidden px-1.5 py-0.5 rounded text-[10px] font-bold uppercase bg-pink-500/25 text-pink-300 border border-pink-500/30">DEFAULT</span>
                     </button>
 
-                    <!-- All Collections CTA Button -->
-                    <button id="openCollectionsModalBtn" type="button"
-                        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/40 text-pink-200 hover:text-white text-xs sm:text-sm font-semibold transition active:scale-95 cursor-pointer shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
-                        title="Browse and Switch Collections">
-                        <i class="fas fa-layer-group text-pink-400 text-xs"></i>
-                        <span>All Collections</span>
-                    </button>
-
                     <!-- Refresh Button -->
                     <button id="refreshBtn" type="button"
                         class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold text-white transition active:scale-95 cursor-pointer shadow-sm"
@@ -379,31 +369,18 @@
                         <i id="refreshIcon" class="fas fa-arrows-rotate text-pink-300 text-xs"></i>
                         <span id="refreshStatusText">Refresh</span>
                     </button>
-
-                    <!-- Add Folder Button -->
-                    <button id="openNewFolderModalBtn" type="button"
-                        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold text-white transition active:scale-95 cursor-pointer shadow-sm">
-                        <i class="fas fa-folder-plus text-yellow-300"></i>
-                        <span class="hidden sm:inline">New Folder</span>
-                    </button>
-
-                    <!-- Add Note Button -->
-                    <button id="openNewNoteModalBtn" type="button"
-                        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold text-white transition active:scale-95 cursor-pointer shadow-sm">
-                        <i class="fas fa-note-sticky text-amber-300"></i>
-                        <span class="hidden sm:inline">Add Note</span>
-                    </button>
-
-                    <!-- Add Link Button -->
-                    <button id="openNewLinkModalBtn" type="button"
-                        class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-xs font-bold text-white transition transform active:scale-95 shadow-md cursor-pointer">
-                        <i class="fas fa-plus"></i>
-                        <span>Add Link</span>
-                    </button>
                 </div>
 
-                <!-- Right: Search Input & View Toggle -->
-                <div class="flex items-center gap-3">
+                <!-- Right: Collections CTA, Search Input & View Toggle -->
+                <div class="flex flex-wrap sm:flex-nowrap items-center gap-2.5 sm:gap-3">
+
+                    <!-- All Collections CTA Button (placed before search bar) -->
+                    <button id="openCollectionsModalBtn" type="button"
+                        class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/40 text-pink-200 hover:text-white text-xs sm:text-sm font-semibold transition active:scale-95 cursor-pointer shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-400 flex-shrink-0"
+                        title="Browse and Switch Collections">
+                        <i class="fas fa-layer-group text-pink-400 text-xs"></i>
+                        <span>All Collections</span>
+                    </button>
 
                     <!-- Search Input -->
                     <div class="relative flex-1 sm:w-72">
@@ -418,7 +395,7 @@
                     </div>
 
                     <!-- View Mode Toggle (Grid / List) -->
-                    <div class="flex items-center bg-slate-900/60 border border-white/20 rounded-xl p-1">
+                    <div class="flex items-center bg-slate-900/60 border border-white/20 rounded-xl p-1 flex-shrink-0">
                         <button id="viewGridBtn"
                             class="px-2.5 py-1.5 rounded-lg text-xs bg-white/20 text-white font-bold transition cursor-pointer"
                             title="Grid View">
@@ -515,6 +492,25 @@
             <!-- Dynamically populated -->
         </div>
 
+        <!-- Read-Only Notice Bar below Grid -->
+        <div id="readOnlyNotice"
+            class="hidden mt-8 p-4 sm:p-5 rounded-2xl glass-card border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 shadow-lg">
+            <div class="flex items-start sm:items-center gap-3">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-pink-500/20 border border-pink-500/30 text-pink-200 text-xs font-semibold flex-shrink-0 shadow-sm">
+                    <i class="fas fa-lock text-[10px]"></i>
+                    <span>Read-only</span>
+                </span>
+                <p class="text-xs sm:text-sm text-gray-300 leading-relaxed">
+                    <span class="text-white font-semibold">Note:</span> Currently you cannot modify the data here. Use <strong class="text-pink-300 font-semibold">Tabsome New Tab</strong> browser extension to manage your data.
+                </p>
+            </div>
+            <a href="https://chromewebstore.google.com" target="_blank" rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs transition flex-shrink-0 self-end sm:self-center shadow-sm">
+                <i class="fab fa-chrome text-xs text-pink-300"></i>
+                <span>Get Extension</span>
+            </a>
+        </div>
+
     </main>
 
     <!-- Footer -->
@@ -539,271 +535,6 @@
     <!-- MODALS SECTION -->
     <!-- ========================================================================= -->
 
-    <!-- Add / Edit Link Modal -->
-    <div id="linkModal"
-        class="modal-layer hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-        <div class="glass-card max-w-lg w-full rounded-3xl p-6 sm:p-8 border border-white/20 shadow-2xl relative">
-            <div class="flex justify-between items-center mb-6">
-                <h3 id="linkModalTitle" class="text-xl font-extrabold text-white flex items-center gap-2">
-                    <i class="fas fa-link text-pink-400"></i>
-                    <span>Add New Link</span>
-                </h3>
-                <button type="button" class="close-modal-btn text-gray-400 hover:text-white text-lg cursor-pointer">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <form id="linkForm" class="space-y-4">
-                <input type="hidden" id="linkEditId" value="" />
-                <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1">URL <span
-                            class="text-pink-400">*</span></label>
-                    <input type="url" id="linkUrlInput" required placeholder="https://example.com"
-                        class="w-full bg-slate-900/80 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-pink-400" />
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1">Title <span
-                            class="text-pink-400">*</span></label>
-                    <input type="text" id="linkTitleInput" required placeholder="Page Title"
-                        class="w-full bg-slate-900/80 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-pink-400" />
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1">Thumbnail / Image URL (Optional)</label>
-                    <input type="url" id="linkImageInput" placeholder="https://example.com/cover.png (auto-generated if empty)"
-                        class="w-full bg-slate-900/80 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-pink-400" />
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1">Description (Optional)</label>
-                    <textarea id="linkDescInput" rows="2" placeholder="Brief note or bookmark excerpt"
-                        class="w-full bg-slate-900/80 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-pink-400"></textarea>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1">Tags (Comma-separated)</label>
-                    <input type="text" id="linkTagsInput" placeholder="dev, tools, reference"
-                        class="w-full bg-slate-900/80 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-pink-400" />
-                </div>
-                <div class="flex justify-end gap-3 pt-4 border-t border-white/10">
-                    <button type="button"
-                        class="close-modal-btn px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-gray-200 transition">Cancel</button>
-                    <button type="submit"
-                        class="px-5 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-xs font-bold text-white transition shadow-md">
-                        Save Link
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Add / Edit Note Modal -->
-    <div id="noteModal"
-        class="modal-layer hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-        <div class="glass-card max-w-lg w-full rounded-3xl p-6 sm:p-8 border border-white/20 shadow-2xl relative">
-            <div class="flex justify-between items-center mb-6">
-                <h3 id="noteModalTitle" class="text-xl font-extrabold text-white flex items-center gap-2">
-                    <i class="fas fa-note-sticky text-amber-400"></i>
-                    <span>Add Note</span>
-                </h3>
-                <button type="button" class="close-modal-btn text-gray-400 hover:text-white text-lg cursor-pointer">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <form id="noteForm" class="space-y-4">
-                <input type="hidden" id="noteEditId" value="" />
-                <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1">Title <span
-                            class="text-amber-400">*</span></label>
-                    <input type="text" id="noteTitleInput" required placeholder="Note Title"
-                        class="w-full bg-slate-900/80 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-amber-400" />
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1">Content <span
-                            class="text-amber-400">*</span></label>
-                    <textarea id="noteContentInput" rows="5" required
-                        placeholder="Write your note, code snippets, or thoughts..."
-                        class="w-full bg-slate-900/80 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 font-mono"></textarea>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1">Color Theme</label>
-                    <div class="flex items-center gap-3">
-                        <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs">
-                            <input type="radio" name="noteColor" value="default" checked class="accent-pink-500" />
-                            Default
-                        </label>
-                        <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs text-amber-300">
-                            <input type="radio" name="noteColor" value="yellow" class="accent-amber-500" /> Yellow
-                        </label>
-                        <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs text-blue-300">
-                            <input type="radio" name="noteColor" value="blue" class="accent-blue-500" /> Blue
-                        </label>
-                        <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs text-emerald-300">
-                            <input type="radio" name="noteColor" value="emerald" class="accent-emerald-500" /> Emerald
-                        </label>
-                        <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs text-purple-300">
-                            <input type="radio" name="noteColor" value="purple" class="accent-purple-500" /> Purple
-                        </label>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1">Tags (Comma-separated)</label>
-                    <input type="text" id="noteTagsInput" placeholder="meeting, ideas, research"
-                        class="w-full bg-slate-900/80 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-400" />
-                </div>
-                <div class="flex justify-end gap-3 pt-4 border-t border-white/10">
-                    <button type="button"
-                        class="close-modal-btn px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-gray-200 transition">Cancel</button>
-                    <button type="submit"
-                        class="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-xs font-bold text-white transition shadow-md">
-                        Save Note
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Add New Folder Modal -->
-    <div id="folderModal"
-        class="modal-layer hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-        <div class="glass-card max-w-md w-full rounded-3xl p-6 sm:p-8 border border-white/20 shadow-2xl relative">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-extrabold text-white flex items-center gap-2">
-                    <i class="fas fa-folder-plus text-yellow-400"></i>
-                    <span>Create Folder</span>
-                </h3>
-                <button type="button" class="close-modal-btn text-gray-400 hover:text-white text-lg cursor-pointer">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <form id="folderForm" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1">Folder Name <span
-                            class="text-pink-400">*</span></label>
-                    <input type="text" id="folderNameInput" required placeholder="e.g. Work, Frontend, AI Papers"
-                        class="w-full bg-slate-900/80 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400" />
-                </div>
-                <div class="flex justify-end gap-3 pt-4 border-t border-white/10">
-                    <button type="button"
-                        class="close-modal-btn px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-gray-200 transition">Cancel</button>
-                    <button type="submit"
-                        class="px-5 py-2 rounded-xl bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 text-xs font-bold text-white transition shadow-md">
-                        Create Folder
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Add New Collection Modal -->
-    <div id="collectionModal"
-        class="modal-layer hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-        <div class="glass-card max-w-md w-full rounded-3xl p-6 sm:p-8 border border-white/20 shadow-2xl relative">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-extrabold text-white flex items-center gap-2">
-                    <i class="fas fa-layer-group text-pink-400"></i>
-                    <span>Create Collection</span>
-                </h3>
-                <button type="button" class="close-modal-btn text-gray-400 hover:text-white text-lg cursor-pointer">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <form id="collectionForm" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1">Collection Name <span
-                            class="text-pink-400">*</span></label>
-                    <input type="text" id="collectionNameInput" required placeholder="e.g. Work Projects, Design, Research"
-                        class="w-full bg-slate-900/80 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-pink-400" />
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1">Description (Optional)</label>
-                    <input type="text" id="collectionDescInput" placeholder="Brief note about this collection"
-                        class="w-full bg-slate-900/80 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-pink-400" />
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">Color Theme</label>
-                    <div class="flex items-center gap-3 flex-wrap" id="collectionColorPicker">
-                        <label class="inline-flex items-center cursor-pointer">
-                            <input type="radio" name="colColor" value="#ec4899" checked class="sr-only peer" />
-                            <span class="w-6 h-6 rounded-full bg-pink-500 border-2 border-transparent peer-checked:border-white peer-checked:scale-110 transition block shadow-sm"></span>
-                        </label>
-                        <label class="inline-flex items-center cursor-pointer">
-                            <input type="radio" name="colColor" value="#8b5cf6" class="sr-only peer" />
-                            <span class="w-6 h-6 rounded-full bg-purple-500 border-2 border-transparent peer-checked:border-white peer-checked:scale-110 transition block shadow-sm"></span>
-                        </label>
-                        <label class="inline-flex items-center cursor-pointer">
-                            <input type="radio" name="colColor" value="#3b82f6" class="sr-only peer" />
-                            <span class="w-6 h-6 rounded-full bg-blue-500 border-2 border-transparent peer-checked:border-white peer-checked:scale-110 transition block shadow-sm"></span>
-                        </label>
-                        <label class="inline-flex items-center cursor-pointer">
-                            <input type="radio" name="colColor" value="#10b981" class="sr-only peer" />
-                            <span class="w-6 h-6 rounded-full bg-emerald-500 border-2 border-transparent peer-checked:border-white peer-checked:scale-110 transition block shadow-sm"></span>
-                        </label>
-                        <label class="inline-flex items-center cursor-pointer">
-                            <input type="radio" name="colColor" value="#f59e0b" class="sr-only peer" />
-                            <span class="w-6 h-6 rounded-full bg-amber-500 border-2 border-transparent peer-checked:border-white peer-checked:scale-110 transition block shadow-sm"></span>
-                        </label>
-                        <label class="inline-flex items-center cursor-pointer">
-                            <input type="radio" name="colColor" value="#6366f1" class="sr-only peer" />
-                            <span class="w-6 h-6 rounded-full bg-indigo-500 border-2 border-transparent peer-checked:border-white peer-checked:scale-110 transition block shadow-sm"></span>
-                        </label>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">Icon</label>
-                    <div class="grid grid-cols-6 gap-2" id="collectionIconPicker">
-                        <label class="cursor-pointer">
-                            <input type="radio" name="colIcon" value="folder" checked class="sr-only peer" />
-                            <div class="h-9 rounded-xl border border-white/20 peer-checked:border-pink-400 peer-checked:bg-pink-500/20 flex items-center justify-center text-gray-300 peer-checked:text-pink-300 transition">
-                                <i class="fas fa-folder text-sm"></i>
-                            </div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="colIcon" value="bookmark" class="sr-only peer" />
-                            <div class="h-9 rounded-xl border border-white/20 peer-checked:border-pink-400 peer-checked:bg-pink-500/20 flex items-center justify-center text-gray-300 peer-checked:text-pink-300 transition">
-                                <i class="fas fa-bookmark text-sm"></i>
-                            </div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="colIcon" value="rocket" class="sr-only peer" />
-                            <div class="h-9 rounded-xl border border-white/20 peer-checked:border-pink-400 peer-checked:bg-pink-500/20 flex items-center justify-center text-gray-300 peer-checked:text-pink-300 transition">
-                                <i class="fas fa-rocket text-sm"></i>
-                            </div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="colIcon" value="book" class="sr-only peer" />
-                            <div class="h-9 rounded-xl border border-white/20 peer-checked:border-pink-400 peer-checked:bg-pink-500/20 flex items-center justify-center text-gray-300 peer-checked:text-pink-300 transition">
-                                <i class="fas fa-book text-sm"></i>
-                            </div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="colIcon" value="star" class="sr-only peer" />
-                            <div class="h-9 rounded-xl border border-white/20 peer-checked:border-pink-400 peer-checked:bg-pink-500/20 flex items-center justify-center text-gray-300 peer-checked:text-pink-300 transition">
-                                <i class="fas fa-star text-sm"></i>
-                            </div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="colIcon" value="compass" class="sr-only peer" />
-                            <div class="h-9 rounded-xl border border-white/20 peer-checked:border-pink-400 peer-checked:bg-pink-500/20 flex items-center justify-center text-gray-300 peer-checked:text-pink-300 transition">
-                                <i class="fas fa-compass text-sm"></i>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-                <div class="pt-1">
-                    <label class="inline-flex items-center gap-2 cursor-pointer text-xs text-gray-300 select-none">
-                        <input type="checkbox" id="collectionIsDefaultInput" class="w-4 h-4 rounded bg-slate-900 border-white/20 accent-pink-500" />
-                        <span>Set as Default Collection</span>
-                    </label>
-                </div>
-                <div class="flex justify-end gap-3 pt-4 border-t border-white/10">
-                    <button type="button"
-                        class="close-modal-btn px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-gray-200 transition">Cancel</button>
-                    <button type="submit" id="saveCollectionSubmitBtn"
-                        class="px-5 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-xs font-bold text-white transition shadow-md">
-                        Create Collection
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <!-- All Collections Dialog Modal -->
     <div id="collectionsDialogModal"
         class="modal-layer hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
@@ -820,16 +551,11 @@
                             <h3 class="text-lg sm:text-xl font-extrabold text-white">Collections</h3>
                             <span id="collectionsModalCountBadge" class="px-2 py-0.5 rounded-full bg-white/10 text-xs font-semibold text-pink-300 border border-white/10">0</span>
                         </div>
-                        <p class="text-xs text-gray-400 mt-0.5">Select a collection to view and manage its links and folders</p>
+                        <p class="text-xs text-gray-400 mt-0.5">Select a collection to explore its synced links, notes, and folders</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button type="button" id="openNewCollectionFromDialogBtn"
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/40 text-pink-200 hover:text-white text-xs font-semibold transition cursor-pointer active:scale-95 shadow-sm">
-                        <i class="fas fa-plus text-[10px]"></i>
-                        <span>New</span>
-                    </button>
-                    <button type="button" class="close-modal-btn text-gray-400 hover:text-white text-lg p-1.5 rounded-lg hover:bg-white/10 transition cursor-pointer">
+                    <button type="button" class="close-modal-btn text-gray-400 hover:text-white text-lg p-1.5 rounded-lg hover:bg-white/10 transition cursor-pointer" title="Close">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -920,7 +646,7 @@
         const emptyTitle = document.getElementById('emptyTitle');
         const emptyDesc = document.getElementById('emptyDesc');
         const libraryContainer = document.getElementById('libraryContainer');
-        const activeCollectionBadge = document.getElementById('activeCollectionBadge');
+        const readOnlyNotice = document.getElementById('readOnlyNotice');
 
         // Collection Switcher & Dialog Elements
         const currentCollectionBtn = document.getElementById('currentCollectionBtn');
@@ -939,7 +665,6 @@
         const collectionsModalLoadingSkeleton = document.getElementById('collectionsModalLoadingSkeleton');
         const collectionsModalListContainer = document.getElementById('collectionsModalListContainer');
         const collectionsModalEmptyState = document.getElementById('collectionsModalEmptyState');
-        const openNewCollectionFromDialogBtn = document.getElementById('openNewCollectionFromDialogBtn');
 
         // Refresh Button Elements
         const refreshBtn = document.getElementById('refreshBtn');
@@ -957,26 +682,12 @@
         const viewGridBtn = document.getElementById('viewGridBtn');
         const viewListBtn = document.getElementById('viewListBtn');
 
-        // Modals
-        const linkModal = document.getElementById('linkModal');
-        const noteModal = document.getElementById('noteModal');
-        const folderModal = document.getElementById('folderModal');
-        const collectionModal = document.getElementById('collectionModal');
-
-        const linkForm = document.getElementById('linkForm');
-        const noteForm = document.getElementById('noteForm');
-        const folderForm = document.getElementById('folderForm');
-        const collectionForm = document.getElementById('collectionForm');
-
+        // Modals Management
         function openModal(modal) {
             if (modal) modal.classList.remove('hidden');
         }
 
         function closeModals() {
-            linkModal?.classList.add('hidden');
-            noteModal?.classList.add('hidden');
-            folderModal?.classList.add('hidden');
-            collectionModal?.classList.add('hidden');
             collectionsDialogModal?.classList.add('hidden');
         }
 
@@ -1418,17 +1129,7 @@
                 selectedCollectionIconWrapper.style.color = currentColor;
             }
 
-            // Update badge on title row
-            if (activeCollectionBadge) {
-                activeCollectionBadge.innerHTML = `
-                    <span class="inline-flex items-center gap-1.5">
-                        <i class="fas ${currentIcon} text-[11px]" style="color: ${currentColor}"></i>
-                        <span>${escapeHtml(currentName)}</span>
-                        ${isDefault ? '<span class="text-[10px] uppercase font-bold opacity-80">(Default)</span>' : ''}
-                    </span>
-                `;
-                activeCollectionBadge.classList.remove('hidden');
-            }
+
 
             // If collections modal is currently visible, refresh its list
             if (collectionsDialogModal && !collectionsDialogModal.classList.contains('hidden')) {
@@ -1540,7 +1241,7 @@
                 } else {
                     const colName = activeCollectionData?.name || 'Your library';
                     emptyTitle.textContent = `${escapeHtml(colName)} is empty`;
-                    emptyDesc.textContent = 'Add links, notes, and folders using the buttons above.';
+                    emptyDesc.textContent = 'Use the Tabsome browser extension to save links, notes, and folders to this collection.';
                 }
                 return;
             }
@@ -1562,19 +1263,14 @@
                 if (viewMode === 'grid') {
                     html += `
                         <div class="library-item-card folder-card p-4 sm:p-5 flex flex-col justify-between group cursor-pointer" data-folder-id="${folder.id}" data-folder-name="${escapeHtml(folder.name)}">
-                            <div class="flex items-start justify-between gap-3">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-xl bg-pink-500/20 border border-pink-400/30 flex items-center justify-center text-pink-300 text-lg group-hover:scale-105 transition shadow-sm">
-                                        <i class="fas fa-folder"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="text-sm font-bold text-white group-hover:text-pink-300 transition truncate max-w-[150px]">${escapeHtml(folder.name)}</h4>
-                                        <span class="text-[11px] text-gray-400">${folderItemCount} item${folderItemCount === 1 ? '' : 's'}</span>
-                                    </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-pink-500/20 border border-pink-400/30 flex items-center justify-center text-pink-300 text-lg group-hover:scale-105 transition shadow-sm flex-shrink-0">
+                                    <i class="fas fa-folder"></i>
                                 </div>
-                                <button class="delete-folder-btn text-gray-400 hover:text-rose-400 text-xs p-1.5 transition opacity-0 group-hover:opacity-100 cursor-pointer" data-id="${folder.id}" title="Delete folder">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
+                                <div class="min-w-0 flex-1">
+                                    <h4 class="text-sm font-bold text-white group-hover:text-pink-300 transition truncate">${escapeHtml(folder.name)}</h4>
+                                    <span class="text-[11px] text-gray-400">${folderItemCount} item${folderItemCount === 1 ? '' : 's'}</span>
+                                </div>
                             </div>
                             <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-pink-300 font-semibold">
                                 <span>Open Folder</span>
@@ -1597,9 +1293,6 @@
                             <div class="flex items-center gap-3">
                                 <span class="text-xs text-pink-300 font-semibold hidden sm:inline">Open Folder</span>
                                 <i class="fas fa-chevron-right text-xs text-pink-300"></i>
-                                <button class="delete-folder-btn text-gray-400 hover:text-rose-400 text-xs p-1.5 transition opacity-0 group-hover:opacity-100 ml-2 cursor-pointer" data-id="${folder.id}" title="Delete folder">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
                             </div>
                         </div>
                     `;
@@ -1617,16 +1310,11 @@
                         html += `
                             <div class="library-item-card note-card p-4 sm:p-5 flex flex-col justify-between group h-full">
                                 <div>
-                                    <div class="flex items-start justify-between gap-2 mb-2">
-                                        <div class="flex items-center gap-2">
-                                            <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center text-xs shadow-sm">
-                                                <i class="fas fa-sticky-note"></i>
-                                            </div>
-                                            <h4 class="text-sm font-bold text-white truncate max-w-[160px]">${escapeHtml(item.title || 'Untitled Note')}</h4>
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center text-xs shadow-sm flex-shrink-0">
+                                            <i class="fas fa-sticky-note"></i>
                                         </div>
-                                        <button class="delete-item-btn text-gray-400 hover:text-rose-400 text-xs p-1 transition opacity-0 group-hover:opacity-100 cursor-pointer" data-id="${item.id}" title="Delete note">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
+                                        <h4 class="text-sm font-bold text-white truncate flex-1">${escapeHtml(item.title || 'Untitled Note')}</h4>
                                     </div>
                                     <p class="text-xs text-gray-300 line-clamp-4 leading-relaxed mb-3">${escapeHtml(noteSnippet)}</p>
                                 </div>
@@ -1657,9 +1345,6 @@
                                 <div class="flex items-center gap-2 flex-shrink-0">
                                     <button class="copy-note-btn text-gray-400 hover:text-white transition text-xs cursor-pointer p-2" data-text="${escapeHtml(noteSnippet)}" title="Copy text">
                                         <i class="fas fa-copy"></i>
-                                    </button>
-                                    <button class="delete-item-btn text-gray-400 hover:text-rose-400 text-xs p-2 transition cursor-pointer" data-id="${item.id}" title="Delete note">
-                                        <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </div>
                             </div>
@@ -1697,10 +1382,6 @@
                                                 <span class="truncate">${escapeHtml(domain)}</span>
                                             </div>
                                         </div>
-
-                                        <button class="delete-item-btn absolute top-2 right-2 w-7 h-7 rounded-lg bg-black/60 hover:bg-rose-500 text-white/80 hover:text-white backdrop-blur-md border border-white/15 flex items-center justify-center text-xs transition opacity-0 group-hover:opacity-100 cursor-pointer shadow-md" data-id="${item.id}" title="Delete link">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
                                     </div>
 
                                     <div class="p-4">
@@ -1761,9 +1442,6 @@
                                     <button class="copy-link-btn p-2 text-gray-400 hover:text-white transition cursor-pointer" data-url="${escapeHtml(item.url)}" title="Copy URL">
                                         <i class="fas fa-copy text-xs"></i>
                                     </button>
-                                    <button class="delete-item-btn p-2 text-gray-400 hover:text-rose-400 text-xs transition cursor-pointer" data-id="${item.id}" title="Delete link">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
                                 </div>
                             </div>
                         `;
@@ -1781,224 +1459,6 @@
                     ${tags.map(t => `<span class="px-2 py-0.5 rounded-md bg-white/10 text-[10px] text-gray-300 font-medium">#${escapeHtml(t)}</span>`).join('')}
                 </div>
             `;
-        }
-
-        // =========================================================================
-        // ITEM, FOLDER & COLLECTION REST MUTATIONS
-        // =========================================================================
-
-        async function createNewCollection(name, description, color, icon, isDefault) {
-            const payload = {
-                name,
-                description: description || null,
-                color: color || '#ec4899',
-                icon: icon || 'folder',
-                isDefault: Boolean(isDefault)
-            };
-
-            try {
-                const res = await TabsomeAuth.apiFetch(`${API_BASE_URL}/api/v3/users/me/library/collections`, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-                if (res.ok) {
-                    const result = await res.json();
-                    if (result.success && result.data) {
-                        if (collectionsList && collectionsList.length > 0) {
-                            collectionsList.push(result.data);
-                        }
-                        await switchCollection(result.data.id);
-                    }
-                } else {
-                    console.error('Failed to create collection', await res.text());
-                }
-            } catch (err) {
-                console.error('Error creating collection:', err);
-            }
-        }
-
-        async function createNewLink(url, title, description, tags, image = null) {
-            if (!activeCollectionId) {
-                alert('Please select or wait for a collection to load.');
-                return;
-            }
-            const domain = extractDomain(url);
-            const tagsArray = tags ? tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean) : [];
-            const favicon = domain ? `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64` : null;
-
-            const payload = {
-                type: 'link',
-                parentId: currentFolderId || null,
-                sortOrder: allItems.length,
-                url,
-                title: title || domain,
-                description: description || null,
-                image: image || null,
-                favicon,
-                tags: tagsArray
-            };
-
-            const tempId = generateUUID();
-            const optimisticItem = { ...payload, id: tempId, collectionId: activeCollectionId, createdAt: new Date().toISOString() };
-            allItems.unshift(optimisticItem);
-            saveLocalCachedData();
-            renderCurrentView();
-
-            try {
-                const res = await TabsomeAuth.apiFetch(`${API_BASE_URL}/api/v3/users/me/library/collections/${activeCollectionId}/items`, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-                if (res.ok) {
-                    const result = await res.json();
-                    if (result.success && result.data) {
-                        const idx = allItems.findIndex(i => i.id === tempId);
-                        if (idx >= 0) allItems[idx] = result.data;
-                        saveLocalCachedData();
-                        renderCurrentView();
-                    }
-                } else {
-                    console.error('Failed to create link on server', await res.text());
-                }
-            } catch (err) {
-                console.error('Error creating link:', err);
-            }
-        }
-
-        async function createNewNote(title, content, color, tags) {
-            if (!activeCollectionId) {
-                alert('Please select or wait for a collection to load.');
-                return;
-            }
-            const tagsArray = tags ? tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean) : [];
-            const payload = {
-                type: 'note',
-                parentId: currentFolderId || null,
-                sortOrder: allItems.length,
-                title: title || 'Untitled Note',
-                content: [{ type: 'p', html: content }],
-                color: color || 'default',
-                tags: tagsArray
-            };
-
-            const tempId = generateUUID();
-            const optimisticItem = { ...payload, id: tempId, collectionId: activeCollectionId, createdAt: new Date().toISOString() };
-            allItems.unshift(optimisticItem);
-            saveLocalCachedData();
-            renderCurrentView();
-
-            try {
-                const res = await TabsomeAuth.apiFetch(`${API_BASE_URL}/api/v3/users/me/library/collections/${activeCollectionId}/items`, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-                if (res.ok) {
-                    const result = await res.json();
-                    if (result.success && result.data) {
-                        const idx = allItems.findIndex(i => i.id === tempId);
-                        if (idx >= 0) allItems[idx] = result.data;
-                        saveLocalCachedData();
-                        renderCurrentView();
-                    }
-                } else {
-                    console.error('Failed to create note on server', await res.text());
-                }
-            } catch (err) {
-                console.error('Error creating note:', err);
-            }
-        }
-
-        async function createNewFolder(name) {
-            if (!activeCollectionId) {
-                alert('Please select or wait for a collection to load.');
-                return;
-            }
-            const payload = {
-                name,
-                parentId: currentFolderId || null,
-                sortOrder: allFolders.length
-            };
-
-            const tempId = generateUUID();
-            const optimisticFolder = { ...payload, id: tempId, collectionId: activeCollectionId, createdAt: new Date().toISOString() };
-            allFolders.unshift(optimisticFolder);
-            saveLocalCachedData();
-            renderCurrentView();
-
-            try {
-                const res = await TabsomeAuth.apiFetch(`${API_BASE_URL}/api/v3/users/me/library/collections/${activeCollectionId}/folders`, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-                if (res.ok) {
-                    const result = await res.json();
-                    if (result.success && result.data) {
-                        const idx = allFolders.findIndex(f => f.id === tempId);
-                        if (idx >= 0) allFolders[idx] = result.data;
-                        saveLocalCachedData();
-                        renderCurrentView();
-                    }
-                } else {
-                    console.error('Failed to create folder on server', await res.text());
-                }
-            } catch (err) {
-                console.error('Error creating folder:', err);
-            }
-        }
-
-        async function deleteItem(itemId) {
-            if (!confirm('Are you sure you want to delete this item?')) return;
-            const previousItems = [...allItems];
-            allItems = allItems.filter(i => i.id !== itemId);
-            saveLocalCachedData();
-            renderCurrentView();
-
-            try {
-                const res = await TabsomeAuth.apiFetch(`${API_BASE_URL}/api/v3/users/me/library/collections/${activeCollectionId}/items/${itemId}`, {
-                    method: 'DELETE'
-                });
-                if (!res.ok) {
-                    console.error('Failed to delete item from server');
-                    allItems = previousItems;
-                    saveLocalCachedData();
-                    renderCurrentView();
-                }
-            } catch (err) {
-                console.error('Error deleting item:', err);
-                allItems = previousItems;
-                saveLocalCachedData();
-                renderCurrentView();
-            }
-        }
-
-        async function deleteFolder(folderId) {
-            if (!confirm('Delete this folder and all items inside it?')) return;
-            const previousFolders = [...allFolders];
-            const previousItems = [...allItems];
-
-            allFolders = allFolders.filter(f => f.id !== folderId);
-            allItems = allItems.filter(i => (i.parentId || null) !== folderId);
-            saveLocalCachedData();
-            renderCurrentView();
-
-            try {
-                const res = await TabsomeAuth.apiFetch(`${API_BASE_URL}/api/v3/users/me/library/collections/${activeCollectionId}/folders/${folderId}`, {
-                    method: 'DELETE'
-                });
-                if (!res.ok) {
-                    console.error('Failed to delete folder from server');
-                    allFolders = previousFolders;
-                    allItems = previousItems;
-                    saveLocalCachedData();
-                    renderCurrentView();
-                }
-            } catch (err) {
-                console.error('Error deleting folder:', err);
-                allFolders = previousFolders;
-                allItems = previousItems;
-                saveLocalCachedData();
-                renderCurrentView();
-            }
         }
 
         // =========================================================================
@@ -2026,9 +1486,11 @@
                         loadingSkeleton.classList.add('hidden');
                         libraryContainer.classList.add('hidden');
                         emptyState.classList.add('hidden');
+                        readOnlyNotice?.classList.add('hidden');
                         unauthPrompt.classList.remove('hidden');
                     } else {
                         unauthPrompt.classList.add('hidden');
+                        readOnlyNotice?.classList.remove('hidden');
                         if (!initialLoadPerformed || lastUserId !== userId) {
                             initialLoadPerformed = true;
                             lastUserId = userId;
@@ -2137,26 +1599,12 @@
             // Folder & Item Click Navigation (delegated)
             libraryContainer.addEventListener('click', (e) => {
                 const folderCard = e.target.closest('.folder-card');
-                if (folderCard && !e.target.closest('.delete-folder-btn')) {
+                if (folderCard) {
                     const fid = folderCard.dataset.folderId;
                     const fname = folderCard.dataset.folderName;
                     folderHistory.push({ id: fid, name: fname });
                     currentFolderId = fid;
                     renderCurrentView();
-                    return;
-                }
-
-                // Delete Item
-                const delItemBtn = e.target.closest('.delete-item-btn');
-                if (delItemBtn) {
-                    deleteItem(delItemBtn.dataset.id);
-                    return;
-                }
-
-                // Delete Folder
-                const delFolderBtn = e.target.closest('.delete-folder-btn');
-                if (delFolderBtn) {
-                    deleteFolder(delFolderBtn.dataset.id);
                     return;
                 }
 
@@ -2198,53 +1646,14 @@
                 }
             });
 
-            // Modals Management
-            const openNewLinkModalBtn = document.getElementById('openNewLinkModalBtn');
-            const openNewNoteModalBtn = document.getElementById('openNewNoteModalBtn');
-            const openNewFolderModalBtn = document.getElementById('openNewFolderModalBtn');
-
-            function openModal(modal) {
-                if (modal) modal.classList.remove('hidden');
-            }
-            function closeModals() {
-                linkModal?.classList.add('hidden');
-                noteModal?.classList.add('hidden');
-                folderModal?.classList.add('hidden');
-                collectionModal?.classList.add('hidden');
-                collectionsDialogModal?.classList.add('hidden');
-            }
-
-            openNewCollectionFromDialogBtn?.addEventListener('click', (e) => {
-                e.stopPropagation();
-                closeModals();
-                collectionForm.reset();
-                openModal(collectionModal);
-            });
-
-            openNewLinkModalBtn?.addEventListener('click', () => {
-                linkForm.reset();
-                openModal(linkModal);
-            });
-
-            openNewNoteModalBtn?.addEventListener('click', () => {
-                noteForm.reset();
-                openModal(noteModal);
-            });
-
-            openNewFolderModalBtn?.addEventListener('click', () => {
-                folderForm.reset();
-                openModal(folderModal);
-            });
-
+            // Modal Controls
             document.querySelectorAll('.close-modal-btn').forEach(btn => {
                 btn.addEventListener('click', closeModals);
             });
 
             // Close on backdrop click
-            [linkModal, noteModal, folderModal, collectionModal, collectionsDialogModal].forEach(modal => {
-                modal?.addEventListener('click', (e) => {
-                    if (e.target === modal) closeModals();
-                });
+            collectionsDialogModal?.addEventListener('click', (e) => {
+                if (e.target === collectionsDialogModal) closeModals();
             });
 
             // Close modal on Escape key
@@ -2252,48 +1661,6 @@
                 if (e.key === 'Escape') {
                     closeModals();
                 }
-            });
-
-            // Forms Submit Handlers
-            collectionForm?.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const name = document.getElementById('collectionNameInput').value.trim();
-                const desc = document.getElementById('collectionDescInput').value.trim();
-                const color = document.querySelector('input[name="colColor"]:checked')?.value || '#ec4899';
-                const icon = document.querySelector('input[name="colIcon"]:checked')?.value || 'folder';
-                const isDefault = document.getElementById('collectionIsDefaultInput').checked;
-
-                if (!name) return;
-                closeModals();
-                await createNewCollection(name, desc, color, icon, isDefault);
-            });
-
-            linkForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const url = document.getElementById('linkUrlInput').value;
-                const title = document.getElementById('linkTitleInput').value;
-                const image = document.getElementById('linkImageInput')?.value?.trim() || null;
-                const desc = document.getElementById('linkDescInput').value;
-                const tags = document.getElementById('linkTagsInput').value;
-                closeModals();
-                await createNewLink(url, title, desc, tags, image);
-            });
-
-            noteForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const title = document.getElementById('noteTitleInput').value;
-                const content = document.getElementById('noteContentInput').value;
-                const color = document.querySelector('input[name="noteColor"]:checked')?.value || 'default';
-                const tags = document.getElementById('noteTagsInput').value;
-                closeModals();
-                await createNewNote(title, content, color, tags);
-            });
-
-            folderForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const name = document.getElementById('folderNameInput').value;
-                closeModals();
-                await createNewFolder(name);
             });
         });
     </script>
