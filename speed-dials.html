@@ -61,10 +61,76 @@
 
         /* Glassmorphism Header */
         .glass-header {
-            background: rgba(30, 32, 42, 0.85);
+            background: rgba(30, 41, 59, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.75);
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.35);
+        }
+
+        /* Consistent Dark Glass Inputs */
+        #dialSearchInput,
+        #collectionsSearchInput,
+        input[type="text"],
+        input[type="url"],
+        textarea,
+        select {
+            background-color: rgba(15, 23, 42, 0.65) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        #dialSearchInput::placeholder,
+        #collectionsSearchInput::placeholder,
+        input::placeholder,
+        textarea::placeholder {
+            color: rgba(156, 163, 175, 0.8) !important;
+        }
+
+        #dialSearchInput:hover,
+        #collectionsSearchInput:hover,
+        input[type="text"]:hover,
+        input[type="url"]:hover,
+        textarea:hover,
+        select:hover {
+            background-color: rgba(15, 23, 42, 0.85) !important;
+            border-color: rgba(255, 255, 255, 0.35) !important;
+        }
+
+        #dialSearchInput:focus,
+        #collectionsSearchInput:focus,
+        input[type="text"]:focus,
+        input[type="url"]:focus,
+        textarea:focus,
+        select:focus {
+            background-color: rgba(15, 23, 42, 0.95) !important;
+            border-color: rgba(192, 132, 252, 0.8) !important;
+            box-shadow: 0 0 0 2px rgba(192, 132, 252, 0.3) !important;
+            outline: none !important;
+        }
+
+        /* Collections Modal Items */
+        .collection-item-row {
+            background-color: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .collection-item-row:hover {
+            background-color: rgba(15, 23, 42, 0.9) !important;
+            border-color: rgba(255, 255, 255, 0.25) !important;
+        }
+
+        .collection-item-row.is-active {
+            background-color: rgba(236, 72, 153, 0.15) !important;
+            border-color: rgba(236, 72, 153, 0.4) !important;
         }
 
         /* Opera-Style Smooth Glassmorphism Tile */
@@ -173,6 +239,56 @@
             background: rgba(255, 255, 255, 0.4);
         }
 
+        .modal-layer {
+            position: fixed !important;
+            inset: 0 !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 9999 !important;
+        }
+
+        .modal-layer.hidden {
+            display: none !important;
+        }
+
+        .breadcrumb-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+        }
+
+        .breadcrumb-scroll::-webkit-scrollbar {
+            height: 3px;
+        }
+
+        .breadcrumb-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 4px;
+        }
+
+        /* Ambient floating glow circles */
+        .ambient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            pointer-events: none;
+            opacity: 0.3;
+            animation: floatOrb 10s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatOrb {
+            0% {
+                transform: translateY(0px) scale(1);
+            }
+
+            100% {
+                transform: translateY(-30px) scale(1.1);
+            }
+        }
+
         .heading-font {
             font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
         }
@@ -213,6 +329,11 @@
 
 <body class="text-white font-sans flex flex-col min-h-screen">
 
+    <!-- Ambient floating glow effects -->
+    <div class="ambient-orb w-96 h-96 bg-pink-500 top-16 -left-20"></div>
+    <div class="ambient-orb w-96 h-96 bg-purple-600 top-1/3 -right-20" style="animation-delay: -3s;"></div>
+    <div class="ambient-orb w-80 h-80 bg-indigo-500 bottom-20 left-1/3" style="animation-delay: -6s;"></div>
+
     <!-- Navbar -->
     <header class="fixed w-full glass-header z-50">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
@@ -251,93 +372,81 @@
                 </div>
             </div>
 
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-6">
-                <div>
-                    <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-white flex items-center gap-3">
-                        <span>Speed Dials</span>
-                        <span id="collectionBadge"
-                            class="hidden text-xs sm:text-sm font-semibold px-3 py-1 rounded-full bg-white/15 border border-white/20 text-gray-200">Default Collection</span>
-                    </h1>
-                    <p class="text-xs sm:text-sm text-gray-300/90 mt-3.5 flex items-center gap-2">
-                        <i class="fas fa-info-circle text-pink-300 text-xs flex-shrink-0"></i>
-                        <span>Modifying Speed dial here is not supported yet. If you want this feature, <a href="contact.html" class="text-pink-300 hover:text-pink-200 underline underline-offset-2 decoration-pink-400/50 hover:decoration-pink-200 transition font-medium">let us know</a>.</span>
-                    </p>
-                </div>
-
-                <!-- Collection Switcher & ID Badge -->
-                <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
-                    <!-- Collection Custom Dropdown Selector -->
-                    <div id="collectionSelectorContainer" class="hidden relative inline-block text-left">
-                        <button id="collectionDropdownBtn" type="button" aria-haspopup="listbox" aria-expanded="false"
-                            class="bg-slate-900/80 hover:bg-slate-900 border border-white/20 hover:border-white/40 text-white text-xs sm:text-sm font-semibold rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-purple-400 shadow-md transition cursor-pointer">
-                            <i class="fas fa-layer-group text-purple-300 text-xs flex-shrink-0"></i>
-                            <span id="selectedCollectionName" class="max-w-[130px] sm:max-w-[180px] truncate text-left">Default Collection</span>
-                            
-                            <!-- Badges for isDefault and isPublic (with tooltip and icon) -->
-                            <div id="selectedCollectionBadges" class="flex items-center gap-1.5 flex-shrink-0"></div>
-
-                            <i id="collectionDropdownChevron" class="fas fa-chevron-down text-gray-400 text-[10px] ml-0.5 transition-transform duration-200 pointer-events-none flex-shrink-0"></i>
-                        </button>
-
-                        <!-- Dropdown Options Menu -->
-                        <div id="collectionDropdownMenu" role="listbox"
-                            class="hidden absolute right-0 mt-2 w-72 max-h-80 overflow-y-auto origin-top-right rounded-2xl bg-slate-900/95 backdrop-blur-xl border border-white/20 shadow-2xl p-1.5 z-50 space-y-1 transform transition-all duration-150">
-                            <!-- Populated dynamically -->
-                        </div>
-                    </div>
-
-                    <!-- Collection ID Badge with Copy Button -->
-                    <div id="collectionIdBadgeContainer" class="hidden inline-flex items-center gap-1.5 bg-slate-900/80 border border-white/20 hover:border-white/40 rounded-xl px-3 py-2 text-xs font-mono shadow-md transition backdrop-blur-md">
-                        <span class="text-gray-400 text-[11px] font-sans font-medium select-none">ID:</span>
-                        <span id="collectionIdText" class="text-purple-200 font-semibold max-w-[100px] sm:max-w-[140px] truncate" title="">-</span>
-                        <button id="copyCollectionIdBtn" type="button" aria-label="Copy Collection ID" title="Copy Collection ID"
-                            class="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 active:scale-95 transition cursor-pointer flex items-center justify-center">
-                            <i id="copyCollectionIdIcon" class="far fa-copy text-xs"></i>
-                        </button>
-                    </div>
-                </div>
+            <!-- Main Title Row -->
+            <div class="flex items-center gap-3 pb-4 border-b border-white/10">
+                <h1 class="heading-font text-3xl sm:text-4xl font-black tracking-tight text-white flex items-center gap-3">
+                    <span>Speed Dials</span>
+                </h1>
             </div>
 
-            <!-- Extension Version & Data Sync Notice -->
-            <div id="versionNoticeBanner"
-                class="mt-4 p-3.5 sm:p-4 rounded-xl bg-amber-500 text-slate-950 shadow-md flex items-start sm:items-center justify-between gap-3.5">
-                <div class="flex items-start sm:items-center gap-3">
-                    <i class="fas fa-circle-info text-lg text-slate-950 flex-shrink-0 mt-0.5 sm:mt-0"></i>
-                    <div class="text-xs sm:text-sm font-medium text-slate-950 leading-relaxed">
-                        <span class="font-bold mr-1">Notice:</span>
-                        To view your latest speed dials data, please ensure your Tabsome extension is updated to version <span class="font-bold underline decoration-slate-950/40 underline-offset-2">3.7.0 (or above)</span>. If you notice any discrepancies in your data after updating, please report them using the in-extension <span class="font-bold">Feedback</span> option.
-                    </div>
-                </div>
-                <button id="dismissNoticeBtn" type="button" aria-label="Dismiss notice" title="Dismiss notice"
-                    class="text-slate-800 hover:text-black p-1 rounded-lg hover:bg-amber-600/30 transition flex-shrink-0 cursor-pointer">
-                    <i class="fas fa-times text-xs"></i>
-                </button>
-            </div>
+            <!-- Action Controls, Search & View Controls Row -->
+            <div class="pt-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
 
-            <!-- Breadcrumbs Bar & Stats -->
-            <div class="pt-4 flex flex-wrap items-center justify-between gap-3">
-                <div class="flex items-center gap-3 flex-wrap">
-                    <!-- Back Button when inside a subfolder -->
-                    <button id="backFolderBtn"
-                        class="hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-semibold text-white transition transform active:scale-95 cursor-pointer">
-                        <i class="fas fa-arrow-left text-[11px] text-pink-300"></i>
-                        <span>Back</span>
+                <!-- Left: Action Controls (Active Collection, Refresh) -->
+                <div class="flex flex-wrap items-center gap-2.5">
+
+                    <!-- Current Active Collection Pill Button -->
+                    <button id="currentCollectionBtn" type="button"
+                        class="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-900 border border-white/20 text-white text-xs sm:text-sm font-semibold transition active:scale-95 cursor-pointer shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
+                        title="Currently active collection. Click to browse collections.">
+                        <span id="selectedCollectionIconWrapper" class="w-5 h-5 rounded-lg flex items-center justify-center text-xs bg-pink-500/20 text-pink-300 border border-pink-400/30 flex-shrink-0">
+                            <i id="selectedCollectionIcon" class="fas fa-folder"></i>
+                        </span>
+                        <span id="selectedCollectionName" class="max-w-[130px] sm:max-w-[180px] truncate text-white">Default Collection</span>
+                        <span id="selectedCollectionDefaultBadge" class="hidden px-1.5 py-0.5 rounded text-[10px] font-bold uppercase bg-pink-500/25 text-pink-300 border border-pink-500/30">DEFAULT</span>
                     </button>
 
-                    <!-- Breadcrumbs Trail -->
-                    <nav id="breadcrumbsContainer"
-                        class="flex items-center flex-wrap gap-2 text-xs sm:text-sm font-medium text-gray-300">
-                        <!-- Populated dynamically -->
-                    </nav>
+                    <!-- Refresh Button -->
+                    <button id="refreshBtn" type="button"
+                        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold text-white transition active:scale-95 cursor-pointer shadow-sm"
+                        title="Reload Collections & Items">
+                        <i id="refreshIcon" class="fas fa-arrows-rotate text-pink-300 text-xs"></i>
+                        <span id="refreshStatusText">Refresh</span>
+                    </button>
                 </div>
 
-                <!-- Stats Badges -->
-                <div class="flex items-center gap-2">
-                    <span id="searchResultNote" class="text-xs text-yellow-200 font-medium hidden"></span>
+                <!-- Right: Collections CTA, Search Input & Items Count -->
+                <div class="flex flex-wrap sm:flex-nowrap items-center gap-2.5 sm:gap-3">
+
+                    <!-- All Collections CTA Button -->
+                    <button id="openCollectionsModalBtn" type="button"
+                        class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/40 text-pink-200 hover:text-white text-xs sm:text-sm font-semibold transition active:scale-95 cursor-pointer shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-400 flex-shrink-0"
+                        title="Browse and Switch Collections">
+                        <i class="fas fa-layer-group text-pink-400 text-xs"></i>
+                        <span>All Collections</span>
+                    </button>
+
+                    <!-- Search Input -->
+                    <div class="relative flex-1 sm:w-72">
+                        <i
+                            class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+                        <input type="text" id="dialSearchInput" placeholder="Search speed dials and folders..."
+                            class="w-full bg-slate-900/60 hover:bg-slate-900/80 border border-white/20 rounded-xl pl-9 pr-9 py-2.5 text-xs sm:text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 transition" />
+                        <button id="clearSearchBtn"
+                            class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-xs cursor-pointer">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <!-- Items Count Badge -->
                     <div id="itemCountBadge"
-                        class="text-xs text-gray-300 font-semibold px-2.5 py-1 rounded-lg bg-white/10 border border-white/10 hidden">
+                        class="hidden px-2.5 py-2 rounded-xl bg-slate-900/60 border border-white/20 text-xs font-semibold text-gray-300 flex-shrink-0 whitespace-nowrap">
                     </div>
                 </div>
+            </div>
+
+            <!-- Breadcrumbs & Back Navigation Row -->
+            <div class="pt-4 flex items-center justify-between gap-3 w-full">
+                <!-- Scrollable Path Container -->
+                <nav id="breadcrumbsContainer"
+                    class="breadcrumb-scroll flex items-center gap-2 text-xs sm:text-sm text-gray-300 font-medium overflow-x-auto whitespace-nowrap flex-1 min-w-0 py-1"></nav>
+
+                <!-- Fixed Right Back Button -->
+                <button id="backFolderBtn"
+                    class="hidden flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-semibold text-white transition active:scale-95 cursor-pointer shadow-sm">
+                    <i class="fas fa-arrow-left text-[11px] text-pink-300"></i>
+                    <span>Back</span>
+                </button>
             </div>
         </div>
     </section>
@@ -417,126 +526,119 @@
             <!-- Rendered dynamically -->
         </div>
 
+        <!-- Read-Only Notice Bar below Grid -->
+        <div id="readOnlyNotice"
+            class="hidden mt-8 p-4 sm:p-5 rounded-2xl glass-card border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 shadow-lg">
+            <div class="flex items-start sm:items-center gap-3">
+                <span
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-pink-500/20 border border-pink-500/30 text-pink-200 text-xs font-semibold flex-shrink-0 shadow-sm">
+                    <i class="fas fa-lock text-[10px]"></i>
+                    <span>Read-only</span>
+                </span>
+                <p class="text-xs sm:text-sm text-gray-300 leading-relaxed">
+                    <span class="text-white font-semibold">Note:</span> Modifying Speed dials here is not supported yet. Use <strong class="text-pink-300 font-semibold">Tabsome New Tab</strong> browser extension to manage your speed dials.
+                </p>
+            </div>
+            <a href="https://chromewebstore.google.com" target="_blank" rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs transition flex-shrink-0 self-end sm:self-center shadow-sm">
+                <i class="fab fa-chrome text-xs text-pink-300"></i>
+                <span>Get Extension</span>
+            </a>
+        </div>
+
     </main>
 
-    <!-- Floating Debug Button -->
-    <div class="fixed bottom-4 right-4 z-50">
-        <button id="toggleDebugBtn"
-            class="bg-slate-900/90 hover:bg-slate-900 border border-white/20 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shadow-2xl backdrop-blur-md flex items-center gap-2 transition transform hover:scale-105 active:scale-95 cursor-pointer">
-            <i class="fas fa-bug text-pink-400"></i>
-            <span>Debug Info</span>
-            <span id="debugCountBadge" class="w-2 h-2 rounded-full bg-emerald-400"></span>
-        </button>
-    </div>
+    <!-- Footer -->
+    <footer class="glass-header py-8 text-xs text-white/70 mt-auto">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-2">
+                <img src="assets/logo-white.png" alt="Tabsome" class="w-5 h-5">
+                <span>&copy; 2025 Tabsome. All rights reserved.</span>
+            </div>
+            <div class="flex items-center flex-wrap gap-6 font-medium">
+                <a href="library.html" class="hover:text-white transition">Library</a>
+                <a href="widgets.html" class="hover:text-white transition">Widgets</a>
+                <a href="roadmap.html" class="hover:text-white transition">Roadmap</a>
+                <a href="changelogs.html" class="hover:text-white transition">Changelogs</a>
+                <a href="privacy.html" class="hover:text-white transition">Privacy Policy</a>
+                <a href="support.html" class="hover:text-white transition">Support</a>
+            </div>
+        </div>
+    </footer>
 
-    <!-- Debug Modal / Panel Drawer -->
-    <div id="debugModal"
-        class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div
-            class="bg-slate-900 border border-white/20 rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
-            <!-- Header -->
-            <div class="p-4 border-b border-white/10 flex items-center justify-between bg-slate-950/60">
-                <div class="flex items-center gap-2.5">
-                    <div
-                        class="w-7 h-7 rounded-lg bg-pink-500/20 text-pink-300 border border-pink-500/30 flex items-center justify-center text-xs">
-                        <i class="fas fa-terminal"></i>
+    <!-- ========================================================================= -->
+    <!-- MODALS SECTION -->
+    <!-- ========================================================================= -->
+
+    <!-- All Collections Dialog Modal -->
+    <div id="collectionsDialogModal"
+        class="modal-layer hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
+        <div class="glass-card max-w-xl w-full rounded-3xl p-6 sm:p-7 border border-white/20 shadow-2xl relative flex flex-col max-h-[88vh]">
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between pb-4 border-b border-white/10 flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-pink-500/20 border border-pink-500/30 text-pink-300 flex items-center justify-center text-sm shadow-sm">
+                        <i class="fas fa-layer-group"></i>
                     </div>
                     <div>
-                        <h3 class="text-sm font-bold text-white">Speed Dials Debugger & State Inspector</h3>
-                        <p class="text-[11px] text-gray-400">Live API response, auth session, and data extraction state
-                        </p>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-lg sm:text-xl font-extrabold text-white">Collections</h3>
+                            <span id="collectionsModalCountBadge" class="px-2 py-0.5 rounded-full bg-white/10 text-xs font-semibold text-pink-300 border border-white/10">0</span>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-0.5">Select a collection to explore its synced speed dials and folders</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button id="refreshDataBtn"
-                        class="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer">
-                        <i class="fas fa-rotate text-xs text-pink-300"></i>
-                        <span>Re-fetch</span>
+                    <button type="button" id="collectionsModalRefreshBtn"
+                        class="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition cursor-pointer"
+                        title="Reload collections list">
+                        <i id="collectionsModalRefreshIcon" class="fas fa-arrows-rotate text-xs"></i>
                     </button>
-                    <button id="closeDebugBtn"
-                        class="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white flex items-center justify-center text-xs transition cursor-pointer">
+                    <button type="button" class="close-modal-btn text-gray-400 hover:text-white text-lg p-1.5 rounded-lg hover:bg-white/10 transition cursor-pointer" title="Close">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- Content Body -->
-            <div class="p-4 overflow-y-auto space-y-4 text-xs font-mono">
-                <!-- Status Grid -->
-                <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
-                    <div class="bg-slate-950/80 p-2.5 rounded-xl border border-white/10">
-                        <span class="text-[10px] text-gray-400 block uppercase font-sans">Auth Status</span>
-                        <span id="debugAuthStatus" class="font-bold text-yellow-300 text-xs">Checking...</span>
-                    </div>
-                    <div class="bg-slate-950/80 p-2.5 rounded-xl border border-white/10">
-                        <span class="text-[10px] text-gray-400 block uppercase font-sans">Data Source</span>
-                        <span id="debugDataSource" class="font-bold text-gray-200 text-xs truncate block">-</span>
-                    </div>
-                    <div class="bg-slate-950/80 p-2.5 rounded-xl border border-white/10">
-                        <span class="text-[10px] text-gray-400 block uppercase font-sans">API Endpoint</span>
-                        <span id="debugApiUrl" class="font-bold text-gray-200 text-[11px] truncate block"
-                            title="">-</span>
-                    </div>
-                    <div class="bg-slate-950/80 p-2.5 rounded-xl border border-white/10">
-                        <span class="text-[10px] text-gray-400 block uppercase font-sans">Active Collection</span>
-                        <span id="debugActiveCol" class="font-bold text-pink-300 text-xs truncate block">-</span>
-                    </div>
-                    <div class="bg-slate-950/80 p-2.5 rounded-xl border border-white/10">
-                        <span class="text-[10px] text-gray-400 block uppercase font-sans">Extracted Items</span>
-                        <span id="debugItemsCount" class="font-bold text-emerald-300 text-xs">0 items</span>
-                    </div>
-                </div>
+            <!-- Loading Skeleton -->
+            <div id="collectionsModalLoadingSkeleton" class="hidden py-10 flex flex-col items-center justify-center gap-3">
+                <i class="fas fa-circle-notch fa-spin text-pink-400 text-2xl"></i>
+                <span class="text-xs font-medium text-gray-300">Fetching your collections...</span>
+            </div>
 
-                <!-- Event Logs Stream -->
-                <div class="bg-slate-950/90 rounded-xl border border-white/10 p-3">
-                    <div class="flex items-center justify-between pb-2 border-b border-white/10 mb-2">
-                        <span class="text-[11px] font-sans font-bold text-gray-300 flex items-center gap-1.5">
-                            <i class="fas fa-list-ul text-pink-400 text-xs"></i>
-                            <span>Activity & API Logs</span>
-                        </span>
-                        <button id="clearLogsBtn"
-                            class="text-[10px] text-gray-400 hover:text-white underline">Clear</button>
-                    </div>
-                    <div id="debugLogContainer"
-                        class="space-y-1 max-h-36 overflow-y-auto text-[11px] font-mono text-gray-300 select-text">
-                        <!-- Dynamic logs -->
-                    </div>
-                </div>
+            <!-- Scrollable Collections List -->
+            <div id="collectionsModalListContainer" class="flex-1 overflow-y-auto py-3 space-y-2 breadcrumb-scroll pr-1 max-h-[50vh]">
+                <!-- Populated dynamically -->
+            </div>
 
-                <!-- Raw JSON Inspection Area -->
-                <div class="bg-slate-950/90 rounded-xl border border-white/10 p-3">
-                    <div class="flex items-center justify-between pb-2 border-b border-white/10 mb-2">
-                        <span class="text-[11px] font-sans font-bold text-gray-300 flex items-center gap-1.5">
-                            <i class="fas fa-code text-indigo-400 text-xs"></i>
-                            <span>Raw Collection Data Payload</span>
-                        </span>
-                        <button id="copyJsonBtn" class="text-[10px] text-gray-400 hover:text-white underline">Copy
-                            JSON</button>
-                    </div>
-                    <pre id="debugRawJson"
-                        class="max-h-48 overflow-y-auto text-[11px] text-gray-300 bg-black/40 p-2.5 rounded-lg select-text overflow-x-auto leading-tight"></pre>
+            <!-- Empty State -->
+            <div id="collectionsModalEmptyState" class="hidden py-8 text-center flex flex-col items-center justify-center">
+                <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 mb-2">
+                    <i class="fas fa-folder-open text-lg"></i>
                 </div>
+                <p class="text-xs font-semibold text-gray-300">No collections found</p>
+                <p class="text-[11px] text-gray-500 mt-0.5">No collections are currently available.</p>
+            </div>
+
+            <!-- Footer -->
+            <div class="pt-3 border-t border-white/10 flex items-center justify-end text-[11px] text-gray-400 flex-shrink-0">
+                <button type="button" class="close-modal-btn px-4 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold transition cursor-pointer">
+                    Close
+                </button>
             </div>
         </div>
     </div>
-
-    <!-- Footer -->
-    <footer class="glass-header py-6 text-center text-xs text-white/70 mt-auto">
-        <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-3">
-            <p>&copy; 2025 Tabsome. All rights reserved.</p>
-            <div class="flex items-center gap-5">
-                <a href="privacy.html" class="hover:text-white transition">Privacy Policy</a>
-                <a href="support.html" class="hover:text-white transition">Support</a>
-                <a href="roadmap.html" class="hover:text-white transition">Roadmap</a>
-                <a href="widgets.html" class="hover:text-white transition">Widgets</a>
-            </div>
-        </div>
-    </footer>
 
     <!-- Logic Script -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         AOS.init({ duration: 600, once: true });
+
+        // =========================================================================
+        // CLIENT STATE & SPEED DIALS CONTROLLER
+        // =========================================================================
+        const API_BASE_URL = window.TabsomeConfig?.API_BASE_URL || window.API_BASE_URL || 'https://tabsome.vercel.app';
 
         // URL Search Params & isNew Flag (defaults to true)
         const urlParams = new URLSearchParams(window.location.search);
@@ -550,20 +652,25 @@
             return url.toString();
         }
 
-        // State
+        let currentUser = null;
+        let isRefreshing = false;
+
+        // In-memory Collections & Dials Database
         let collectionsList = [];
+        let hasFetchedCollectionsList = false;
         let activeCollectionId = null;
         let activeCollectionData = null;
         let allItems = [];
-        let currentFolderId = null;
-        let folderHistory = []; // [{ id: null, name: 'Main Collection' }, { id: 'folder_uuid', name: 'Work' }]
-        let searchQuery = '';
-        let debugLogs = [];
-        let isFetchingDials = false;
-        let initialLoadCompleted = false;
-        let currentAuthUserId = null;
 
-        // DOM Elements
+        // View & Navigation State
+        let folderHistory = [{ id: null, name: 'Default Collection' }];
+        let currentFolderId = null;
+        let searchQuery = '';
+
+        // Local Storage Keys
+        const STORAGE_KEY_DATA = 'tabsome_speed_dials_data';
+
+        // DOM Element References
         const unauthPrompt = document.getElementById('unauthPrompt');
         const unauthSignInBtn = document.getElementById('unauthSignInBtn');
         const loadingDials = document.getElementById('loadingDials');
@@ -571,82 +678,58 @@
         const emptyTitle = document.getElementById('emptyTitle');
         const emptyDescription = document.getElementById('emptyDescription');
         const dialsGrid = document.getElementById('dialsGrid');
-        const collectionSelectorContainer = document.getElementById('collectionSelectorContainer');
-        const collectionDropdownBtn = document.getElementById('collectionDropdownBtn');
-        const collectionDropdownMenu = document.getElementById('collectionDropdownMenu');
+        const readOnlyNotice = document.getElementById('readOnlyNotice');
+
+        // Collection Switcher & Dialog Elements
+        const currentCollectionBtn = document.getElementById('currentCollectionBtn');
+        const openCollectionsModalBtn = document.getElementById('openCollectionsModalBtn');
         const selectedCollectionName = document.getElementById('selectedCollectionName');
-        const selectedCollectionBadges = document.getElementById('selectedCollectionBadges');
-        const collectionDropdownChevron = document.getElementById('collectionDropdownChevron');
-        const collectionIdBadgeContainer = document.getElementById('collectionIdBadgeContainer');
-        const collectionIdText = document.getElementById('collectionIdText');
-        const copyCollectionIdBtn = document.getElementById('copyCollectionIdBtn');
-        const copyCollectionIdIcon = document.getElementById('copyCollectionIdIcon');
-        const collectionBadge = document.getElementById('collectionBadge');
-        const dialSearchInput = document.getElementById('dialSearchInput');
-        const clearSearchBtn = document.getElementById('clearSearchBtn');
+        const selectedCollectionDefaultBadge = document.getElementById('selectedCollectionDefaultBadge');
+        const selectedCollectionIconWrapper = document.getElementById('selectedCollectionIconWrapper');
+        const selectedCollectionIcon = document.getElementById('selectedCollectionIcon');
+
+        // Collections Dialog Modal Elements
+        const collectionsDialogModal = document.getElementById('collectionsDialogModal');
+        const collectionsModalCountBadge = document.getElementById('collectionsModalCountBadge');
+        const collectionsSearchInput = document.getElementById('collectionsSearchInput');
+        const collectionsModalRefreshBtn = document.getElementById('collectionsModalRefreshBtn');
+        const collectionsModalRefreshIcon = document.getElementById('collectionsModalRefreshIcon');
+        const collectionsModalLoadingSkeleton = document.getElementById('collectionsModalLoadingSkeleton');
+        const collectionsModalListContainer = document.getElementById('collectionsModalListContainer');
+        const collectionsModalEmptyState = document.getElementById('collectionsModalEmptyState');
+
+        // Refresh Button Elements
+        const refreshBtn = document.getElementById('refreshBtn');
+        const refreshIcon = document.getElementById('refreshIcon');
+        const refreshStatusText = document.getElementById('refreshStatusText');
+
+        // Navigation & Filter Elements
         const breadcrumbsContainer = document.getElementById('breadcrumbsContainer');
         const backFolderBtn = document.getElementById('backFolderBtn');
+        const dialSearchInput = document.getElementById('dialSearchInput');
+        const clearSearchBtn = document.getElementById('clearSearchBtn');
         const itemCountBadge = document.getElementById('itemCountBadge');
-        const searchResultNote = document.getElementById('searchResultNote');
 
-        // Debug DOM Elements
-        const toggleDebugBtn = document.getElementById('toggleDebugBtn');
-        const debugModal = document.getElementById('debugModal');
-        const closeDebugBtn = document.getElementById('closeDebugBtn');
-        const refreshDataBtn = document.getElementById('refreshDataBtn');
-        const clearLogsBtn = document.getElementById('clearLogsBtn');
-        const copyJsonBtn = document.getElementById('copyJsonBtn');
-        const debugAuthStatus = document.getElementById('debugAuthStatus');
-        const debugDataSource = document.getElementById('debugDataSource');
-        const debugApiUrl = document.getElementById('debugApiUrl');
-        const debugActiveCol = document.getElementById('debugActiveCol');
-        const debugItemsCount = document.getElementById('debugItemsCount');
-        const debugLogContainer = document.getElementById('debugLogContainer');
-        const debugRawJson = document.getElementById('debugRawJson');
-        const debugCountBadge = document.getElementById('debugCountBadge');
-
-        // Debug Logger
-        function logDebug(type, message, data = null) {
-            const timestamp = new Date().toLocaleTimeString();
-            const logEntry = { timestamp, type, message, data };
-            debugLogs.unshift(logEntry);
-
-            if (debugLogContainer) {
-                const colorClass = type === 'error' ? 'text-rose-400' :
-                    type === 'warn' ? 'text-amber-400' :
-                        type === 'success' ? 'text-emerald-400' : 'text-cyan-300';
-
-                const itemEl = document.createElement('div');
-                itemEl.className = 'py-0.5 border-b border-white/5 font-mono';
-                itemEl.innerHTML = `<span class="text-gray-500">[${timestamp}]</span> <span class="${colorClass} font-bold">${escapeHtml(type.toUpperCase())}:</span> ${escapeHtml(message)}`;
-                debugLogContainer.prepend(itemEl);
-            }
+        // Modals Management
+        function openModal(modal) {
+            if (modal) modal.classList.remove('hidden');
         }
 
-        function updateDebugUI() {
-            if (debugDataSource) {
-                debugDataSource.innerHTML = isNewParam
-                    ? '<span class="text-pink-400 font-bold">New Source (Default)</span>'
-                    : '<span class="text-amber-400 font-bold">Legacy Standard (?isNew=false)</span>';
-            }
-            if (debugApiUrl) {
-                const sampleEndpoint = getCollectionsApiUrl('/api/v3/users/me/collections');
-                debugApiUrl.textContent = sampleEndpoint;
-                debugApiUrl.title = sampleEndpoint;
-            }
-            if (debugActiveCol) {
-                debugActiveCol.textContent = activeCollectionData ? (activeCollectionData.name || activeCollectionData.id) : 'None';
-            }
-            if (debugItemsCount) {
-                const rootCount = allItems.filter(i => (i.parentId || null) === null).length;
-                debugItemsCount.textContent = `${allItems.length} total (${rootCount} root)`;
-            }
-            if (debugRawJson) {
-                debugRawJson.textContent = activeCollectionData ? JSON.stringify(activeCollectionData, null, 2) : '// No active collection loaded yet';
-            }
+        function closeModals() {
+            collectionsDialogModal?.classList.add('hidden');
         }
 
-        // Color palettes for initials & fallbacks
+        // Helpers
+        function resolveCollectionIcon(icon) {
+            if (!icon) return 'fa-folder';
+            const iconClean = String(icon).toLowerCase().replace(/^fa-/, '').trim();
+            const validIcons = ['folder', 'bookmark', 'rocket', 'book', 'star', 'heart', 'compass', 'code', 'globe', 'lightbulb', 'layer-group', 'briefcase', 'palette', 'desktop', 'terminal'];
+            if (validIcons.includes(iconClean)) {
+                return `fa-${iconClean}`;
+            }
+            return 'fa-folder';
+        }
+
         const GRADIENT_PALETTES = [
             'from-purple-600 to-indigo-600',
             'from-pink-600 to-rose-600',
@@ -681,10 +764,11 @@
         function extractDomain(urlStr) {
             if (!urlStr) return '';
             try {
-                const u = new URL(urlStr);
+                const target = urlStr.includes('://') ? urlStr : `https://${urlStr}`;
+                const u = new URL(target);
                 return u.hostname.replace(/^www\./, '');
             } catch {
-                return urlStr;
+                return String(urlStr).replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
             }
         }
 
@@ -698,15 +782,10 @@
             return clean.substring(0, 2).toUpperCase();
         }
 
-        // Resilient Helper to extract and normalize items from API payload
         function extractItemsFromCollection(collection) {
-            if (!collection) {
-                logDebug('warn', 'extractItemsFromCollection received empty collection');
-                return [];
-            }
+            if (!collection) return [];
 
             let rawList = null;
-
             if (Array.isArray(collection)) {
                 rawList = collection;
             } else if (Array.isArray(collection.content)) {
@@ -718,7 +797,7 @@
                     else if (parsed && Array.isArray(parsed.speedDials)) rawList = parsed.speedDials;
                     else if (parsed && Array.isArray(parsed.items)) rawList = parsed.items;
                 } catch (e) {
-                    logDebug('error', 'Failed to JSON.parse collection.content string', e);
+                    console.warn('Failed to parse collection.content JSON:', e);
                 }
             } else if (collection.content && typeof collection.content === 'object') {
                 if (Array.isArray(collection.content.speedDials)) rawList = collection.content.speedDials;
@@ -733,12 +812,10 @@
             }
 
             if (!rawList || !Array.isArray(rawList)) {
-                logDebug('warn', 'No array items could be extracted from collection payload', collection);
                 return [];
             }
 
-            // Normalize fields across items
-            const normalized = rawList.map((item, idx) => {
+            return rawList.map((item, idx) => {
                 const isFolder = item.type === 'folder' || Boolean(item.isFolder);
                 const rawParentId = item.parentId !== undefined ? item.parentId : (item.folderId !== undefined ? item.folderId : (item.parent_id || null));
                 const cleanParentId = (!rawParentId || rawParentId === 'root' || rawParentId === '') ? null : String(rawParentId);
@@ -746,7 +823,7 @@
                 return {
                     id: String(item.id || item._id || `item_${idx}`),
                     type: isFolder ? 'folder' : 'link',
-                    name: item.name || item.title || item.label || (isFolder ? 'Untitled Folder' : 'Untitled Bookmark'),
+                    name: item.name || item.title || item.label || (isFolder ? 'Untitled Folder' : 'Untitled Dial'),
                     url: item.url || item.link || item.href || '',
                     parentId: cleanParentId,
                     image: item.image || item.icon || item.favicon || item.imageUrl || null,
@@ -756,533 +833,386 @@
                     isSystem: Boolean(item.isSystem)
                 };
             });
-
-            logDebug('success', `Extracted ${normalized.length} items (${normalized.filter(i => i.type === 'folder').length} folders, ${normalized.filter(i => i.type === 'link').length} links)`);
-            return normalized;
         }
 
-        // Debug Modal Event Listeners
-        if (toggleDebugBtn) {
-            toggleDebugBtn.addEventListener('click', () => {
-                debugModal.classList.remove('hidden');
-                updateDebugUI();
-            });
-        }
-        if (closeDebugBtn) {
-            closeDebugBtn.addEventListener('click', () => {
-                debugModal.classList.add('hidden');
-            });
-        }
-        if (debugModal) {
-            debugModal.addEventListener('click', (e) => {
-                if (e.target === debugModal) debugModal.classList.add('hidden');
-            });
-        }
-        if (refreshDataBtn) {
-            refreshDataBtn.addEventListener('click', async () => {
-                logDebug('info', 'Manual refresh triggered');
-                await initSpeedDials();
-            });
-        }
-        if (clearLogsBtn) {
-            clearLogsBtn.addEventListener('click', () => {
-                debugLogs = [];
-                if (debugLogContainer) debugLogContainer.innerHTML = '';
-            });
-        }
-        if (copyJsonBtn) {
-            copyJsonBtn.addEventListener('click', () => {
-                if (activeCollectionData) {
-                    navigator.clipboard.writeText(JSON.stringify(activeCollectionData, null, 2))
-                        .then(() => alert('Collection JSON copied to clipboard!'))
-                        .catch(err => alert('Failed to copy: ' + err));
+        // =========================================================================
+        // LOCAL PERSISTENCE
+        // =========================================================================
+        function loadLocalCachedData() {
+            try {
+                const cached = JSON.parse(localStorage.getItem(STORAGE_KEY_DATA) || '{}');
+                if (cached.collections && Array.isArray(cached.collections)) collectionsList = cached.collections;
+                if (cached.items && Array.isArray(cached.items)) allItems = cached.items;
+                if (cached.activeCollectionId) activeCollectionId = cached.activeCollectionId;
+                if (activeCollectionId && collectionsList.length > 0) {
+                    activeCollectionData = collectionsList.find(c => c.id === activeCollectionId) || null;
                 }
-            });
+            } catch (err) {
+                console.warn('Failed to load local cached speed dials data', err);
+            }
         }
 
-        // Search and Input Event Listeners
-        if (dialSearchInput) {
-            dialSearchInput.addEventListener('input', (e) => {
-                searchQuery = e.target.value.toLowerCase().trim();
-                if (searchQuery) {
-                    if (clearSearchBtn) clearSearchBtn.classList.remove('hidden');
+        function saveLocalCachedData() {
+            try {
+                localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify({
+                    collections: collectionsList,
+                    items: allItems,
+                    activeCollectionId
+                }));
+            } catch (err) {
+                console.warn('Failed to persist speed dials data to localStorage', err);
+            }
+        }
+
+        // =========================================================================
+        // REST API DATA CONTROLLER
+        // =========================================================================
+
+        async function fetchUserCollections() {
+            try {
+                const collectionsUrl = getCollectionsApiUrl('/api/v3/users/me/collections');
+                const res = await TabsomeAuth.apiFetch(collectionsUrl);
+                if (res.ok) {
+                    const result = await res.json();
+                    if (result.success && Array.isArray(result.data)) {
+                        collectionsList = result.data;
+                        renderCollectionSelector();
+                        return collectionsList;
+                    }
+                }
+            } catch (err) {
+                console.warn('Failed to fetch user collections:', err);
+            }
+            return [];
+        }
+
+        async function fetchDefaultCollection() {
+            try {
+                const defaultUrl = getCollectionsApiUrl('/api/v3/users/me/collections/default');
+                const res = await TabsomeAuth.apiFetch(defaultUrl);
+                if (res.ok) {
+                    const result = await res.json();
+                    if (result.success && result.data) {
+                        applyCollectionData(result.data);
+                        return result.data;
+                    }
                 } else {
-                    if (clearSearchBtn) clearSearchBtn.classList.add('hidden');
+                    console.warn('Default collection endpoint responded with status:', res.status);
                 }
-                renderCurrentView();
-            });
+            } catch (err) {
+                console.error('Failed to fetch default collection:', err);
+            }
+            return null;
         }
 
-        if (clearSearchBtn) {
-            clearSearchBtn.addEventListener('click', () => {
-                if (dialSearchInput) dialSearchInput.value = '';
-                searchQuery = '';
-                clearSearchBtn.classList.add('hidden');
-                renderCurrentView();
-                if (dialSearchInput) dialSearchInput.focus();
-            });
-        }
-
-        if (collectionDropdownBtn && collectionDropdownMenu) {
-            collectionDropdownBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const isHidden = collectionDropdownMenu.classList.contains('hidden');
-                if (isHidden) {
-                    collectionDropdownMenu.classList.remove('hidden');
-                    if (collectionDropdownChevron) collectionDropdownChevron.classList.add('rotate-180');
-                    collectionDropdownBtn.setAttribute('aria-expanded', 'true');
-                } else {
-                    collectionDropdownMenu.classList.add('hidden');
-                    if (collectionDropdownChevron) collectionDropdownChevron.classList.remove('rotate-180');
-                    collectionDropdownBtn.setAttribute('aria-expanded', 'false');
-                }
-            });
-
-            document.addEventListener('click', (e) => {
-                if (collectionSelectorContainer && !collectionSelectorContainer.contains(e.target)) {
-                    collectionDropdownMenu.classList.add('hidden');
-                    if (collectionDropdownChevron) collectionDropdownChevron.classList.remove('rotate-180');
-                    collectionDropdownBtn.setAttribute('aria-expanded', 'false');
-                }
-            });
-
-            collectionDropdownMenu.addEventListener('click', async (e) => {
-                const optionBtn = e.target.closest('.collection-option-btn');
-                if (optionBtn) {
-                    const newColId = optionBtn.dataset.id;
-                    collectionDropdownMenu.classList.add('hidden');
-                    if (collectionDropdownChevron) collectionDropdownChevron.classList.remove('rotate-180');
-                    collectionDropdownBtn.setAttribute('aria-expanded', 'false');
-
-                    if (newColId && newColId !== activeCollectionId) {
-                        activeCollectionId = newColId;
-                        logDebug('info', `Collection switched to: ${activeCollectionId}`);
-                        setupCollectionSelector();
-                        await loadCollectionDetails(activeCollectionId);
+        async function fetchCollectionDetails(colId) {
+            if (!colId) return null;
+            try {
+                const detailUrl = getCollectionsApiUrl(`/api/v3/users/me/collections/${colId}`);
+                const res = await TabsomeAuth.apiFetch(detailUrl);
+                if (res.ok) {
+                    const result = await res.json();
+                    if (result.success && result.data) {
+                        applyCollectionData(result.data, colId);
+                        return result.data;
                     }
                 }
-            });
+            } catch (err) {
+                console.error(`Failed to fetch collection details for ${colId}:`, err);
+            }
+            return null;
         }
 
-        // Copy Collection ID button handler
-        if (copyCollectionIdBtn) {
-            let copyTimeout = null;
-            copyCollectionIdBtn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                const idToCopy = activeCollectionId || activeCollectionData?.id || '';
-                if (!idToCopy) return;
+        function applyCollectionData(data, requestedId = null) {
+            const col = data.collection || data;
+            activeCollectionData = col;
+            activeCollectionId = col.id || requestedId || (collectionsList[0]?.id || null);
 
-                try {
-                    await navigator.clipboard.writeText(idToCopy);
-                    logDebug('success', `Copied Collection ID: ${idToCopy}`);
-                    
-                    if (copyCollectionIdIcon) {
-                        copyCollectionIdIcon.className = 'fas fa-check text-emerald-400 text-xs';
-                    }
-                    copyCollectionIdBtn.setAttribute('title', 'Copied!');
-
-                    if (copyTimeout) clearTimeout(copyTimeout);
-                    copyTimeout = setTimeout(() => {
-                        if (copyCollectionIdIcon) {
-                            copyCollectionIdIcon.className = 'far fa-copy text-xs';
-                        }
-                        copyCollectionIdBtn.setAttribute('title', 'Copy Collection ID');
-                    }, 2000);
-                } catch (err) {
-                    logDebug('error', 'Failed to copy collection ID:', err);
-                    // Fallback using document.execCommand
-                    try {
-                        const tempInput = document.createElement('input');
-                        tempInput.value = idToCopy;
-                        document.body.appendChild(tempInput);
-                        tempInput.select();
-                        document.execCommand('copy');
-                        document.body.removeChild(tempInput);
-
-                        if (copyCollectionIdIcon) {
-                            copyCollectionIdIcon.className = 'fas fa-check text-emerald-400 text-xs';
-                        }
-                        copyCollectionIdBtn.setAttribute('title', 'Copied!');
-                        if (copyTimeout) clearTimeout(copyTimeout);
-                        copyTimeout = setTimeout(() => {
-                            if (copyCollectionIdIcon) {
-                                copyCollectionIdIcon.className = 'far fa-copy text-xs';
-                            }
-                            copyCollectionIdBtn.setAttribute('title', 'Copy Collection ID');
-                        }, 2000);
-                    } catch (fallbackErr) {
-                        alert('Failed to copy ID: ' + err);
-                    }
+            if (activeCollectionId) {
+                const existingIdx = collectionsList.findIndex(c => c.id === activeCollectionId);
+                if (existingIdx >= 0) {
+                    collectionsList[existingIdx] = { ...collectionsList[existingIdx], ...col };
+                } else if (col.id) {
+                    collectionsList.push(col);
                 }
-            });
+            }
+
+            allItems = extractItemsFromCollection(data);
+
+            folderHistory = [{ id: null, name: activeCollectionData?.name || 'Default Collection' }];
+            currentFolderId = null;
+
+            saveLocalCachedData();
+            renderCollectionSelector();
+            renderCurrentView();
         }
 
-        backFolderBtn.addEventListener('click', () => {
-            if (folderHistory.length > 1) {
-                folderHistory.pop();
-                const parent = folderHistory[folderHistory.length - 1];
-                currentFolderId = parent.id;
-                logDebug('info', `Navigated back to: ${parent.name} (id: ${parent.id})`);
-                renderCurrentView();
-            }
-        });
-
-        // Keyboard navigation: Backspace navigates back
-        window.addEventListener('keydown', (e) => {
-            if (dialSearchInput && document.activeElement === dialSearchInput) {
-                if (e.key === 'Escape') {
-                    dialSearchInput.value = '';
-                    searchQuery = '';
-                    if (clearSearchBtn) clearSearchBtn.classList.add('hidden');
-                    renderCurrentView();
-                }
-                return;
-            }
-            if ((e.key === 'Backspace' || e.key === 'Escape') && folderHistory.length > 1) {
-                e.preventDefault();
-                folderHistory.pop();
-                const parent = folderHistory[folderHistory.length - 1];
-                currentFolderId = parent.id;
-                renderCurrentView();
-            }
-        });
-
-        // Initialize and check auth
-        async function initSpeedDials(force = false) {
-            if (isFetchingDials) {
-                logDebug('info', 'initSpeedDials skipped: fetch already in progress');
-                return;
-            }
-            isFetchingDials = true;
-            logDebug('info', 'initSpeedDials() started');
+        async function loadSpeedDials() {
+            if (!currentUser) return;
+            loadingDials.classList.remove('hidden');
+            emptyDials.classList.add('hidden');
+            dialsGrid.classList.add('hidden');
 
             try {
-                if (!window.TabsomeAuth) {
-                    logDebug('error', 'TabsomeAuth SDK is missing on window');
-                    return;
-                }
-
-                const user = await TabsomeAuth.getUser();
-                currentAuthUserId = user ? user.id : null;
-
-                if (debugAuthStatus) {
-                    debugAuthStatus.textContent = user ? `Logged in (${user.email || user.id.substring(0, 8)})` : 'Unauthenticated';
-                    debugAuthStatus.className = user ? 'font-bold text-emerald-400 text-xs' : 'font-bold text-rose-400 text-xs';
-                }
-
-                if (!user) {
-                    logDebug('warn', 'No user logged in. Showing auth prompt.');
-                    loadingDials.classList.add('hidden');
-                    dialsGrid.classList.add('hidden');
-                    emptyDials.classList.add('hidden');
-                    collectionSelectorContainer.classList.add('hidden');
-                    if (collectionIdBadgeContainer) collectionIdBadgeContainer.classList.add('hidden');
-                    collectionBadge.classList.add('hidden');
-                    breadcrumbsContainer.innerHTML = '';
-                    itemCountBadge.classList.add('hidden');
-                    backFolderBtn.classList.add('hidden');
-                    unauthPrompt.classList.remove('hidden');
-                    updateDebugUI();
-                    return;
-                }
-
-                logDebug('success', `User authenticated: ${user.email || user.id}`);
-                unauthPrompt.classList.add('hidden');
-                loadingDials.classList.remove('hidden');
-                dialsGrid.classList.add('hidden');
-                emptyDials.classList.add('hidden');
-
-                try {
-                    // 1. Fetch user's collections list
-                    const collectionsUrl = getCollectionsApiUrl('/api/v3/users/me/collections');
-                    logDebug('info', `Fetching collections list from ${collectionsUrl}`);
-                    const res = await TabsomeAuth.apiFetch(collectionsUrl);
-                    logDebug('info', `Collections list response status: ${res.status}`);
-
-                    if (res.status === 401) {
-                        logDebug('warn', 'Collections API returned 401 Unauthorized. Session invalidated.');
-                        return;
-                    }
-
-                    if (res.ok) {
-                        const result = await res.json();
-                        logDebug('info', 'Collections list response payload:', result);
-                        if (result.success && Array.isArray(result.data) && result.data.length > 0) {
-                            collectionsList = result.data;
-                            logDebug('success', `Found ${collectionsList.length} collection(s) in list`);
-                        }
-                    } else {
-                        const errText = await res.text();
-                        logDebug('warn', `Collections list HTTP error ${res.status}: ${errText}`);
-                    }
-                } catch (err) {
-                    logDebug('error', 'Exception fetching collections list:', err);
-                }
-
-                // 2. Fetch default collection or first collection details
-                try {
-                    const defaultUrl = getCollectionsApiUrl('/api/v3/users/me/collections/default');
-                    logDebug('info', `Fetching default collection from ${defaultUrl}`);
-                    const defaultRes = await TabsomeAuth.apiFetch(defaultUrl);
-                    logDebug('info', `Default collection status: ${defaultRes.status}`);
-
-                    if (defaultRes.status === 401) {
-                        logDebug('warn', 'Default collection API returned 401 Unauthorized. Session invalidated.');
-                        return;
-                    }
-
-                    if (defaultRes.ok) {
-                        const defaultResult = await defaultRes.json();
-                        logDebug('info', 'Default collection response payload:', defaultResult);
-                        if (defaultResult.success && defaultResult.data) {
-                            activeCollectionData = defaultResult.data;
-                            activeCollectionId = activeCollectionData.id;
-                            logDebug('success', `Loaded default collection: "${activeCollectionData.name}" (id: ${activeCollectionId})`);
-                        }
-                    } else if (collectionsList.length > 0) {
-                        // Fallback to first collection in list
-                        activeCollectionId = collectionsList[0].id;
-                        logDebug('info', `Default collection endpoint failed (${defaultRes.status}). Falling back to first collection: ${activeCollectionId}`);
-                        await loadCollectionDetails(activeCollectionId);
-                        return;
-                    } else {
-                        const errText = await defaultRes.text();
-                        logDebug('warn', `Default collection HTTP error ${defaultRes.status}: ${errText}`);
-                    }
-                } catch (err) {
-                    logDebug('error', 'Exception loading default collection:', err);
-                }
-
-                setupCollectionSelector();
-
-                if (activeCollectionData) {
-                    allItems = extractItemsFromCollection(activeCollectionData);
-                } else {
-                    allItems = [];
-                    logDebug('warn', 'activeCollectionData is null after fetch attempts');
-                }
-
-                // Reset navigation stack to root
-                folderHistory = [{ id: null, name: activeCollectionData?.name || 'All Dials' }];
-                currentFolderId = null;
-
-                updateDebugUI();
-                loadingDials.classList.add('hidden');
-                renderCurrentView();
-                initialLoadCompleted = true;
+                // Fetch default collection directly on startup without listing all collections
+                await fetchDefaultCollection();
+            } catch (err) {
+                console.error('Error initializing speed dials:', err);
             } finally {
-                isFetchingDials = false;
+                loadingDials.classList.add('hidden');
+                renderCollectionSelector();
+                renderCurrentView();
             }
         }
 
-        function getCollectionStatusBadgesHtml(collection) {
-            if (!collection) return '';
-            const isDefault = Boolean(collection.isDefault ?? collection.is_default);
-            const isPublic = Boolean(collection.isPublic ?? collection.is_public);
-            let badges = '';
+        async function refreshSpeedDialsData() {
+            if (!currentUser || isRefreshing) return;
+            isRefreshing = true;
+            refreshIcon.classList.add('fa-spin');
+            refreshStatusText.textContent = 'Refreshing...';
 
-            // isDefault: only show icon if true, else don't
-            if (isDefault) {
-                badges += `<span title="Default Collection" class="inline-flex items-center justify-center w-5 h-5 rounded-md bg-amber-400/20 text-amber-300 text-[11px] cursor-help transition hover:scale-110 flex-shrink-0" aria-label="Default Collection"><i class="fas fa-star text-[10px]"></i></span>`;
-            }
-
-            // isPublic: show globe for public, lock for private, both with tooltip
-            if (isPublic) {
-                badges += `<span title="Public Collection" class="inline-flex items-center justify-center w-5 h-5 rounded-md bg-emerald-500/20 text-emerald-300 text-[11px] cursor-help transition hover:scale-110 flex-shrink-0" aria-label="Public Collection"><i class="fas fa-globe text-[10px]"></i></span>`;
-            } else {
-                badges += `<span title="Private Collection" class="inline-flex items-center justify-center w-5 h-5 rounded-md bg-white/10 text-gray-300 text-[11px] cursor-help transition hover:scale-110 flex-shrink-0" aria-label="Private Collection"><i class="fas fa-lock text-[10px]"></i></span>`;
-            }
-
-            return badges;
-        }
-
-        function setupCollectionSelector() {
-            if (!collectionsList || collectionsList.length === 0) {
-                if (activeCollectionData) {
-                    collectionsList = [activeCollectionData];
+            try {
+                // Only refresh the currently active collection, avoiding redundant collections listing
+                const activeCol = collectionsList.find(c => c.id === activeCollectionId) || activeCollectionData;
+                if (activeCol?.isDefault || !activeCollectionId) {
+                    await fetchDefaultCollection();
+                } else {
+                    await fetchCollectionDetails(activeCollectionId);
                 }
-            }
-
-            if (collectionsList && collectionsList.length > 0) {
-                const currentCol = collectionsList.find(c => c.id === activeCollectionId) || activeCollectionData || collectionsList[0];
-                
-                // Update trigger button state
-                if (selectedCollectionName) {
-                    selectedCollectionName.textContent = currentCol.name || 'Default Collection';
-                    selectedCollectionName.title = currentCol.name || 'Default Collection';
-                }
-                if (selectedCollectionBadges) {
-                    selectedCollectionBadges.innerHTML = getCollectionStatusBadgesHtml(currentCol);
-                }
-
-                // Populate dropdown items
-                if (collectionDropdownMenu) {
-                    collectionDropdownMenu.innerHTML = collectionsList.map(c => {
-                        const isSelected = c.id === activeCollectionId;
-                        const cName = c.name || 'Default Collection';
-                        const badgesHtml = getCollectionStatusBadgesHtml(c);
-
-                        return `
-                            <button type="button" role="option" aria-selected="${isSelected}" data-id="${escapeHtml(c.id)}"
-                                class="collection-option-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition cursor-pointer text-left ${isSelected ? 'bg-purple-600/30 text-white font-semibold border border-purple-500/40' : 'text-gray-200 hover:text-white hover:bg-white/10 border border-transparent'}">
-                                <div class="flex items-center gap-2.5 min-w-0 mr-2 flex-1">
-                                    <i class="fas fa-layer-group text-xs ${isSelected ? 'text-purple-300' : 'text-gray-400'} flex-shrink-0"></i>
-                                    <span class="truncate" title="${escapeHtml(cName)}">${escapeHtml(cName)}</span>
-                                </div>
-                                <div class="flex items-center gap-1.5 flex-shrink-0">
-                                    ${badgesHtml}
-                                    ${isSelected ? '<i class="fas fa-check text-purple-400 text-xs ml-1 flex-shrink-0"></i>' : '<span class="w-3"></span>'}
-                                </div>
-                            </button>
-                        `;
-                    }).join('');
-                }
-
-                collectionSelectorContainer.classList.remove('hidden');
-                collectionBadge.classList.add('hidden');
-
-                // Update Collection ID badge
-                if (collectionIdText && collectionIdBadgeContainer) {
-                    const activeId = currentCol.id || activeCollectionId || '';
-                    if (activeId) {
-                        collectionIdText.textContent = activeId;
-                        collectionIdText.title = activeId;
-                        collectionIdBadgeContainer.classList.remove('hidden');
-                    } else {
-                        collectionIdBadgeContainer.classList.add('hidden');
-                    }
-                }
-            } else {
-                collectionSelectorContainer.classList.add('hidden');
-                collectionBadge.textContent = 'Default Collection';
-                collectionBadge.classList.remove('hidden');
-
-                if (collectionIdText && collectionIdBadgeContainer) {
-                    const activeId = activeCollectionData?.id || activeCollectionId || '';
-                    if (activeId) {
-                        collectionIdText.textContent = activeId;
-                        collectionIdText.title = activeId;
-                        collectionIdBadgeContainer.classList.remove('hidden');
-                    } else {
-                        collectionIdBadgeContainer.classList.add('hidden');
-                    }
-                }
+                refreshStatusText.textContent = 'Refreshed';
+            } catch (err) {
+                console.error('Refresh error:', err);
+                refreshStatusText.textContent = 'Failed';
+            } finally {
+                isRefreshing = false;
+                refreshIcon.classList.remove('fa-spin');
+                setTimeout(() => {
+                    refreshStatusText.textContent = 'Refresh';
+                }, 2000);
             }
         }
 
-        async function loadCollectionDetails(collectionId) {
-            logDebug('info', `loadCollectionDetails(${collectionId}) initiated`);
+        async function switchCollection(colId) {
+            closeModals();
+            if (!colId) return;
+            if (String(colId) === String(activeCollectionId)) {
+                return;
+            }
+            activeCollectionId = colId;
             loadingDials.classList.remove('hidden');
             dialsGrid.classList.add('hidden');
             emptyDials.classList.add('hidden');
 
             try {
-                const detailUrl = getCollectionsApiUrl(`/api/v3/users/me/collections/${collectionId}`);
-                logDebug('info', `Fetching collection details from ${detailUrl}`);
-                const res = await TabsomeAuth.apiFetch(detailUrl);
-                logDebug('info', `Collection detail HTTP status: ${res.status}`);
-                if (res.ok) {
-                    const result = await res.json();
-                    logDebug('info', 'Collection detail payload:', result);
-                    if (result.success && result.data) {
-                        activeCollectionData = result.data;
-                        allItems = extractItemsFromCollection(activeCollectionData);
-                        logDebug('success', `Successfully loaded collection "${activeCollectionData.name}" with ${allItems.length} items`);
-                    }
+                const selectedCol = collectionsList.find(c => String(c.id) === String(colId));
+                if (selectedCol?.isDefault) {
+                    await fetchDefaultCollection();
                 } else {
-                    const errText = await res.text();
-                    logDebug('error', `Failed to load collection ${collectionId}: ${errText}`);
+                    await fetchCollectionDetails(colId);
                 }
             } catch (err) {
-                logDebug('error', 'Exception loading collection:', err);
+                console.error(`Failed to switch to collection ${colId}:`, err);
+            } finally {
+                loadingDials.classList.add('hidden');
+                renderCollectionSelector();
+                renderCurrentView();
+            }
+        }
+
+        // =========================================================================
+        // COLLECTIONS DIALOG CONTROLLER
+        // =========================================================================
+        async function openCollectionsDialog() {
+            if (collectionsDialogModal) {
+                collectionsDialogModal.classList.remove('hidden');
+            }
+            if (collectionsSearchInput) {
+                collectionsSearchInput.value = '';
             }
 
-            folderHistory = [{ id: null, name: activeCollectionData?.name || 'All Dials' }];
-            currentFolderId = null;
-            searchQuery = '';
-            if (dialSearchInput) dialSearchInput.value = '';
-            if (clearSearchBtn) clearSearchBtn.classList.add('hidden');
+            // Lazy-fetch collections list on-demand if not yet loaded
+            if (!hasFetchedCollectionsList) {
+                if (collectionsModalLoadingSkeleton) collectionsModalLoadingSkeleton.classList.remove('hidden');
+                if (collectionsModalListContainer) collectionsModalListContainer.classList.add('hidden');
+                if (collectionsModalEmptyState) collectionsModalEmptyState.classList.add('hidden');
 
-            setupCollectionSelector();
-            updateDebugUI();
-            loadingDials.classList.add('hidden');
-            renderCurrentView();
+                await fetchUserCollections();
+                hasFetchedCollectionsList = true;
+
+                if (collectionsModalLoadingSkeleton) collectionsModalLoadingSkeleton.classList.add('hidden');
+                if (collectionsModalListContainer) collectionsModalListContainer.classList.remove('hidden');
+            }
+
+            renderCollectionsDialogList();
+        }
+
+        function renderCollectionsDialogList() {
+            if (!collectionsModalListContainer) return;
+
+            const q = (collectionsSearchInput?.value || '').trim().toLowerCase();
+            let listToRender = collectionsList || [];
+
+            // If list is empty but we have activeCollectionData, display it as a fallback
+            if (listToRender.length === 0 && activeCollectionData) {
+                listToRender = [activeCollectionData];
+            }
+
+            if (q) {
+                listToRender = listToRender.filter(c =>
+                    (c.name || '').toLowerCase().includes(q) ||
+                    (c.description || '').toLowerCase().includes(q)
+                );
+            }
+
+            if (collectionsModalCountBadge) {
+                collectionsModalCountBadge.textContent = `${collectionsList.length || (activeCollectionData ? 1 : 0)}`;
+            }
+
+            if (listToRender.length === 0) {
+                collectionsModalListContainer.innerHTML = '';
+                collectionsModalListContainer.classList.add('hidden');
+                collectionsModalEmptyState?.classList.remove('hidden');
+                return;
+            }
+
+            collectionsModalEmptyState?.classList.add('hidden');
+            collectionsModalListContainer.classList.remove('hidden');
+
+            collectionsModalListContainer.innerHTML = listToRender.map(col => {
+                const isSelected = col.id === activeCollectionId;
+                const iconClass = resolveCollectionIcon(col.icon);
+                const colColor = col.color || '#ec4899';
+                
+                // Summary description
+                let statsSummary = '';
+                if (col.id === activeCollectionId && allItems.length > 0) {
+                    const links = allItems.filter(i => i.type === 'link').length;
+                    const folders = allItems.filter(i => i.type === 'folder').length;
+                    statsSummary = `${links} link${links === 1 ? '' : 's'} · ${folders} folder${folders === 1 ? '' : 's'}`;
+                } else if (col.linksCount !== undefined || col.foldersCount !== undefined) {
+                    statsSummary = `${col.linksCount || 0} links · ${col.foldersCount || 0} folders`;
+                } else if (col.itemCount !== undefined) {
+                    statsSummary = `${col.itemCount} items`;
+                } else if (Array.isArray(col.content)) {
+                    statsSummary = `${col.content.length} items`;
+                } else if (col.createdAt) {
+                    statsSummary = `Created ${new Date(col.createdAt).toLocaleDateString()}`;
+                } else {
+                    statsSummary = 'Speed Dials Collection';
+                }
+
+                return `
+                    <div class="collection-item-row group flex items-center justify-between gap-3 p-3 sm:p-3.5 rounded-2xl transition cursor-pointer border ${
+                        isSelected
+                            ? 'bg-pink-500/15 border-pink-500/40 shadow-sm'
+                            : 'bg-slate-900/60 hover:bg-slate-900/90 border-white/10 hover:border-white/25'
+                    }" data-collection-id="${col.id}">
+                        <div class="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-sm flex-shrink-0 shadow-sm"
+                                style="background-color: ${colColor}20; border: 1px solid ${colColor}45; color: ${colColor};">
+                                <i class="fas ${iconClass}"></i>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span class="text-xs sm:text-sm font-bold text-white truncate group-hover:text-pink-300 transition">${escapeHtml(col.name || 'Untitled Collection')}</span>
+                                    ${col.isDefault ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-pink-500/30 text-pink-300 border border-pink-500/40">DEFAULT</span>` : ''}
+                                    ${col.isSystem ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-purple-500/30 text-purple-300 border border-purple-500/40">SYSTEM</span>` : ''}
+                                    ${col.isPublic ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-emerald-500/30 text-emerald-300 border border-emerald-500/40">PUBLIC</span>` : ''}
+                                </div>
+                                ${col.description ? `<p class="text-xs text-gray-300 truncate mt-0.5">${escapeHtml(col.description)}</p>` : ''}
+                                <div class="flex items-center gap-2 mt-1 text-[10px] sm:text-[11px] text-gray-400 font-medium">
+                                    <span>${escapeHtml(statsSummary)}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            ${isSelected
+                                ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-pink-500/20 text-pink-300 border border-pink-500/30 text-xs font-semibold"><i class="fas fa-check text-[10px]"></i> Active</span>`
+                                : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 group-hover:bg-pink-500 group-hover:text-white text-gray-300 text-xs font-semibold transition"><span>View</span> <i class="fas fa-arrow-right text-[10px]"></i></span>`
+                            }
+                            <button type="button" class="copy-col-id-btn p-1.5 text-gray-400 hover:text-white rounded-lg hover:bg-white/10 transition cursor-pointer" data-id="${col.id}" title="Copy Collection ID">
+                                <i class="fas fa-copy text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // =========================================================================
+        // UI RENDERING & FILTERING
+        // =========================================================================
+        function renderCollectionSelector() {
+            let activeCol = (collectionsList && collectionsList.find(c => c.id === activeCollectionId)) || activeCollectionData;
+
+            if (!activeCol && collectionsList.length > 0) {
+                activeCol = collectionsList.find(c => c.isDefault) || collectionsList[0];
+                activeCollectionId = activeCol?.id || null;
+            }
+
+            const currentName = activeCol?.name || 'Default Collection';
+            const isDefault = Boolean(activeCol?.isDefault);
+            const currentColor = activeCol?.color || '#ec4899';
+            const currentIcon = resolveCollectionIcon(activeCol?.icon);
+
+            if (selectedCollectionName) {
+                selectedCollectionName.textContent = currentName;
+                selectedCollectionName.title = currentName;
+            }
+
+            if (selectedCollectionDefaultBadge) {
+                selectedCollectionDefaultBadge.classList.toggle('hidden', !isDefault);
+            }
+
+            if (selectedCollectionIcon) {
+                selectedCollectionIcon.className = `fas ${currentIcon}`;
+            }
+
+            if (selectedCollectionIconWrapper) {
+                selectedCollectionIconWrapper.style.backgroundColor = `${currentColor}25`;
+                selectedCollectionIconWrapper.style.borderColor = `${currentColor}40`;
+                selectedCollectionIconWrapper.style.color = currentColor;
+            }
+
+            // If collections modal is currently visible, refresh its list
+            if (collectionsDialogModal && !collectionsDialogModal.classList.contains('hidden')) {
+                renderCollectionsDialogList();
+            }
         }
 
         function renderBreadcrumbs() {
-            if (searchQuery) {
-                breadcrumbsContainer.innerHTML = `
-                    <span class="text-white font-bold flex items-center gap-1.5">
-                        <i class="fas fa-search text-pink-300 text-xs"></i>
-                        <span>Search Results for "${escapeHtml(searchQuery)}"</span>
-                    </span>
-                `;
-                backFolderBtn.classList.add('hidden');
-                return;
-            }
-
-            if (folderHistory.length <= 1) {
-                breadcrumbsContainer.innerHTML = `
-                    <span class="text-white font-bold flex items-center gap-1.5">
-                        <i class="fas fa-home text-pink-300 text-xs"></i>
-                        <span>${escapeHtml(folderHistory[0].name)}</span>
-                    </span>
-                `;
-                backFolderBtn.classList.add('hidden');
-                return;
-            }
-
-            backFolderBtn.classList.remove('hidden');
-
-            let html = '';
-            folderHistory.forEach((f, idx) => {
+            breadcrumbsContainer.innerHTML = folderHistory.map((step, idx) => {
                 const isLast = idx === folderHistory.length - 1;
-                if (!isLast) {
-                    html += `
-                        <button type="button" class="breadcrumb-link text-gray-300 hover:text-white font-medium flex items-center gap-1.5 cursor-pointer" data-idx="${idx}">
-                            ${idx === 0 ? '<i class="fas fa-home text-pink-300 text-xs"></i>' : '<i class="fas fa-folder text-amber-300 text-xs"></i>'}
-                            <span>${escapeHtml(f.name)}</span>
-                        </button>
-                        <span class="text-white/40 text-xs"><i class="fas fa-chevron-right text-[10px]"></i></span>
-                    `;
-                } else {
-                    html += `
-                        <span class="text-white font-bold flex items-center gap-1.5">
-                            <i class="fas fa-folder-open text-amber-300 text-xs"></i>
-                            <span>${escapeHtml(f.name)}</span>
-                        </span>
-                    `;
+                if (isLast) {
+                    return `<span class="text-white font-bold flex-shrink-0">${escapeHtml(step.name)}</span>`;
                 }
-            });
+                return `
+                    <button class="breadcrumb-nav-btn text-gray-400 hover:text-white transition cursor-pointer flex-shrink-0" data-idx="${idx}">
+                        ${escapeHtml(step.name)}
+                    </button>
+                    <i class="fas fa-chevron-right text-[10px] text-gray-500 flex-shrink-0"></i>
+                `;
+            }).join('');
 
-            breadcrumbsContainer.innerHTML = html;
-
-            breadcrumbsContainer.querySelectorAll('.breadcrumb-link').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const idx = parseInt(btn.getAttribute('data-idx'), 10);
-                    folderHistory = folderHistory.slice(0, idx + 1);
-                    currentFolderId = folderHistory[folderHistory.length - 1].id;
-                    logDebug('info', `Breadcrumb jump to index ${idx}: ${folderHistory[folderHistory.length - 1].name}`);
-                    renderCurrentView();
-                });
-            });
+            backFolderBtn.classList.toggle('hidden', folderHistory.length <= 1);
+            setTimeout(() => {
+                breadcrumbsContainer.scrollLeft = breadcrumbsContainer.scrollWidth;
+            }, 0);
         }
 
         function renderCurrentView() {
             renderBreadcrumbs();
 
             let visibleItems = [];
-            let isSearching = Boolean(searchQuery);
+            const q = searchQuery.trim().toLowerCase();
 
-            if (isSearching) {
+            if (q) {
                 // Global search across all items in this collection
                 visibleItems = allItems.filter(item => {
                     const name = (item.name || '').toLowerCase();
                     const url = (item.url || '').toLowerCase();
-                    return name.includes(searchQuery) || url.includes(searchQuery);
+                    return name.includes(q) || url.includes(q);
                 });
-                searchResultNote.textContent = `Found ${visibleItems.length} match${visibleItems.length === 1 ? '' : 'es'}`;
-                searchResultNote.classList.remove('hidden');
             } else {
                 // Filter by parentId at current folder level
                 visibleItems = allItems.filter(item => {
@@ -1290,25 +1220,23 @@
                     const targetFolderId = currentFolderId || null;
                     return itemParentId === targetFolderId;
                 });
-                searchResultNote.classList.add('hidden');
             }
-
-            logDebug('info', `renderCurrentView: showing ${visibleItems.length} items (isSearching: ${isSearching}, currentFolderId: ${currentFolderId})`);
 
             if (visibleItems.length === 0) {
                 dialsGrid.classList.add('hidden');
                 emptyDials.classList.remove('hidden');
                 itemCountBadge.classList.add('hidden');
 
-                if (isSearching) {
+                if (q) {
                     emptyTitle.textContent = 'No matching speed dials';
                     emptyDescription.textContent = `No dials or folders match "${escapeHtml(searchQuery)}". Try searching for another keyword.`;
                 } else if (folderHistory.length > 1) {
                     emptyTitle.textContent = 'This folder is empty';
                     emptyDescription.textContent = 'There are no bookmarks or subfolders inside this folder yet.';
                 } else {
-                    emptyTitle.textContent = 'No speed dials found';
-                    emptyDescription.textContent = 'This collection is currently empty. Add speed dials in your Tabsome browser extension to sync them here!';
+                    const colName = activeCollectionData?.name || 'Your speed dials';
+                    emptyTitle.textContent = `${escapeHtml(colName)} is empty`;
+                    emptyDescription.textContent = 'Add speed dials in your Tabsome browser extension and they will sync here automatically!';
                 }
                 return;
             }
@@ -1320,7 +1248,7 @@
             const linkCount = visibleItems.filter(i => i.type === 'link').length;
             let countText = '';
             if (folderCount > 0 && linkCount > 0) {
-                countText = `${visibleItems.length} items (${folderCount} ${folderCount === 1 ? 'folder' : 'folders'}, ${linkCount} ${linkCount === 1 ? 'link' : 'links'})`;
+                countText = `${visibleItems.length} items (${folderCount} ${folderCount === 1 ? 'folder' : 'folders'}, ${linkCount} ${linkCount === 1 ? 'dial' : 'dials'})`;
             } else if (folderCount > 0) {
                 countText = `${folderCount} ${folderCount === 1 ? 'folder' : 'folders'}`;
             } else {
@@ -1349,14 +1277,12 @@
 
                     let childrenPreviewHtml = '';
                     if (topChildren.length === 0) {
-                        // Empty folder
                         childrenPreviewHtml = `
                             <div class="flex items-center justify-center text-2xl sm:text-3xl opacity-70 group-hover:scale-110 transition transform select-none">
                                 📁
                             </div>
                         `;
                     } else {
-                        // 2x2 grid of top 4 children
                         let slotsHtml = '';
                         for (let slot = 0; slot < 4; slot++) {
                             const child = topChildren[slot];
@@ -1388,7 +1314,6 @@
                                     `;
                                 }
                             } else {
-                                // Subtle empty placeholder slot
                                 slotsHtml += `
                                     <div class="w-full h-full aspect-square rounded-lg bg-white/5 border border-white/5"></div>
                                 `;
@@ -1418,11 +1343,10 @@
                         currentFolderId = item.id;
                         folderHistory.push({ id: item.id, name: itemName });
                         if (searchQuery) {
-                            dialSearchInput.value = '';
+                            if (dialSearchInput) dialSearchInput.value = '';
                             searchQuery = '';
-                            clearSearchBtn.classList.add('hidden');
+                            if (clearSearchBtn) clearSearchBtn.classList.add('hidden');
                         }
-                        logDebug('info', `Opened folder: "${itemName}" (id: ${item.id})`);
                         renderCurrentView();
                     };
 
@@ -1448,11 +1372,9 @@
                     const thumbnailType = (item.thumbnailType || 'cover').toLowerCase();
                     const hasValidImage = item.image && typeof item.image === 'string' && item.image.trim() !== '';
                     const initials = getInitials(itemName || domain);
-                    const gradientClass = getDeterministicGradient(itemName || domain);
                     const customBg = item.bgColor ? `style="background-color: ${escapeHtml(item.bgColor)};"` : '';
 
                     if (thumbnailType === 'cover' && hasValidImage) {
-                        // 1. Opera Cover Tile: Snapshot filling the entire tile
                         dialEl.innerHTML = `
                             <!-- Cover Tile -->
                             <div class="opera-tile w-full aspect-[16/10] cover-img-wrapper overflow-hidden relative flex items-center justify-center bg-slate-950/40" ${customBg}>
@@ -1460,7 +1382,6 @@
                                     class="w-full h-full object-cover"
                                     onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\\'text-2xl sm:text-3xl font-black text-white/90 drop-shadow group-hover:scale-110 transition transform\\'>${initials}</span>';" />
                                 
-                                <!-- Subtle hover open badge -->
                                 <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition duration-200">
                                     <div class="w-6 h-6 rounded-lg bg-black/50 backdrop-blur-md border border-white/20 flex items-center justify-center text-white text-[9px]">
                                         <i class="fas fa-arrow-up-right-from-square"></i>
@@ -1468,13 +1389,11 @@
                                 </div>
                             </div>
 
-                            <!-- Label Outside & Below Tile -->
                             <span class="text-xs sm:text-sm font-semibold text-white/90 group-hover:text-white truncate w-full text-center mt-2.5 px-1 drop-shadow-md transition" title="${escapeHtml(itemName)}">
                                 ${escapeHtml(itemName)}
                             </span>
                         `;
                     } else if (thumbnailType === 'favicon' && hasValidImage) {
-                        // 2. Opera Favicon Tile: Transparent centered favicon
                         dialEl.innerHTML = `
                             <!-- Favicon Tile (Transparent Icon) -->
                             <div class="opera-tile w-full aspect-[16/10] flex items-center justify-center relative p-3" ${customBg}>
@@ -1482,7 +1401,6 @@
                                     class="w-9 h-9 sm:w-11 sm:h-11 object-contain drop-shadow-md group-hover:scale-110 transition transform"
                                     onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\\'text-2xl sm:text-3xl font-black text-white/90 drop-shadow group-hover:scale-110 transition transform\\'>${initials}</span>';" />
 
-                                <!-- Subtle hover open badge -->
                                 <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition duration-200">
                                     <div class="w-6 h-6 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white text-[9px]">
                                         <i class="fas fa-arrow-up-right-from-square"></i>
@@ -1490,13 +1408,11 @@
                                 </div>
                             </div>
 
-                            <!-- Label Outside & Below Tile -->
                             <span class="text-xs sm:text-sm font-semibold text-white/90 group-hover:text-white truncate w-full text-center mt-2.5 px-1 drop-shadow-md transition" title="${escapeHtml(itemName)}">
                                 ${escapeHtml(itemName)}
                             </span>
                         `;
                     } else {
-                        // 3. Opera Initials Tile: Transparent centered initials
                         dialEl.innerHTML = `
                             <!-- Initials Tile (Transparent Text) -->
                             <div class="opera-tile w-full aspect-[16/10] flex items-center justify-center relative p-3" ${customBg}>
@@ -1504,7 +1420,6 @@
                                     ${initials}
                                 </span>
 
-                                <!-- Subtle hover open badge -->
                                 <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition duration-200">
                                     <div class="w-6 h-6 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white text-[9px]">
                                         <i class="fas fa-arrow-up-right-from-square"></i>
@@ -1512,7 +1427,6 @@
                                 </div>
                             </div>
 
-                            <!-- Label Outside & Below Tile -->
                             <span class="text-xs sm:text-sm font-semibold text-white/90 group-hover:text-white truncate w-full text-center mt-2.5 px-1 drop-shadow-md transition" title="${escapeHtml(itemName)}">
                                 ${escapeHtml(itemName)}
                             </span>
@@ -1524,54 +1438,174 @@
             });
         }
 
-        // Init on DOMContentLoaded & Auth State Change
-        document.addEventListener('DOMContentLoaded', () => {
-            // Dismiss notice handler
-            const noticeBanner = document.getElementById('versionNoticeBanner');
-            const dismissNoticeBtn = document.getElementById('dismissNoticeBtn');
-            if (dismissNoticeBtn && noticeBanner) {
-                dismissNoticeBtn.addEventListener('click', () => {
-                    noticeBanner.classList.add('hidden');
-                    try {
-                        localStorage.setItem('tabsome_sd_v370_notice_dismissed', 'true');
-                    } catch (e) {}
-                });
-                try {
-                    if (localStorage.getItem('tabsome_sd_v370_notice_dismissed') === 'true') {
-                        noticeBanner.classList.add('hidden');
-                    }
-                } catch (e) {}
-            }
+        // =========================================================================
+        // EVENT HANDLERS & INITIALIZATION
+        // =========================================================================
+        let initialLoadPerformed = false;
+        let lastUserId = null;
 
-            if (isNewParam) {
-                logDebug('info', 'Running in New Speed Dials source mode (?isNew=true, default)');
-            } else {
-                logDebug('warn', 'Running in Legacy Speed Dials source mode (?isNew=false)');
-            }
+        document.addEventListener('DOMContentLoaded', async () => {
+            loadLocalCachedData();
 
+            // Initialize Authentication
             if (window.TabsomeAuth) {
                 TabsomeAuth.initNavbarAuth('tabsomeAuthNav');
-                TabsomeAuth.onAuthStateChange((user, session, event) => {
+
+                TabsomeAuth.onAuthStateChange(async (user, session, event) => {
                     if (event === 'PENDING') return;
-                    const newUserId = user ? user.id : null;
-                    if (!user || event === 'SIGNED_OUT') {
-                        logDebug('info', 'Auth state: Unauthenticated -> resetting state');
-                        currentAuthUserId = null;
-                        initialLoadCompleted = false;
-                        allItems = [];
-                        activeCollectionData = null;
+                    currentUser = user;
+                    const userId = user ? (user.id || user.email) : null;
+
+                    if (!user) {
+                        lastUserId = null;
+                        initialLoadPerformed = false;
+                        hasFetchedCollectionsList = false;
                         collectionsList = [];
-                        initSpeedDials();
-                    } else if (newUserId && newUserId !== currentAuthUserId) {
-                        logDebug('info', `Auth SIGNED_IN (${newUserId}) -> fetching dials`);
-                        initSpeedDials();
+                        loadingDials.classList.add('hidden');
+                        dialsGrid.classList.add('hidden');
+                        emptyDials.classList.add('hidden');
+                        readOnlyNotice?.classList.add('hidden');
+                        unauthPrompt.classList.remove('hidden');
                     } else {
-                        logDebug('info', `Auth event '${event || 'token_refresh'}' evaluated`);
+                        unauthPrompt.classList.add('hidden');
+                        readOnlyNotice?.classList.remove('hidden');
+                        if (!initialLoadPerformed || lastUserId !== userId) {
+                            initialLoadPerformed = true;
+                            lastUserId = userId;
+                            await loadSpeedDials();
+                        } else {
+                            renderCollectionSelector();
+                            renderCurrentView();
+                        }
                     }
                 });
             } else {
-                initSpeedDials();
+                await loadSpeedDials();
             }
+
+            // Refresh Trigger
+            refreshBtn?.addEventListener('click', () => refreshSpeedDialsData());
+
+            // Collections Dialog Modal Open Triggers
+            currentCollectionBtn?.addEventListener('click', () => openCollectionsDialog());
+            openCollectionsModalBtn?.addEventListener('click', () => openCollectionsDialog());
+
+            // Collections Dialog Search Filtering
+            collectionsSearchInput?.addEventListener('input', () => {
+                renderCollectionsDialogList();
+            });
+
+            // Collections Dialog Refresh Trigger
+            collectionsModalRefreshBtn?.addEventListener('click', async () => {
+                collectionsModalRefreshIcon?.classList.add('fa-spin');
+                if (collectionsModalLoadingSkeleton) collectionsModalLoadingSkeleton.classList.remove('hidden');
+                if (collectionsModalListContainer) collectionsModalListContainer.classList.add('hidden');
+                try {
+                    await fetchUserCollections();
+                } finally {
+                    collectionsModalRefreshIcon?.classList.remove('fa-spin');
+                    if (collectionsModalLoadingSkeleton) collectionsModalLoadingSkeleton.classList.add('hidden');
+                    if (collectionsModalListContainer) collectionsModalListContainer.classList.remove('hidden');
+                    renderCollectionsDialogList();
+                }
+            });
+
+            // Collections Dialog Modal Selection / Copy (delegated)
+            collectionsModalListContainer?.addEventListener('click', async (e) => {
+                const copyBtn = e.target.closest('.copy-col-id-btn');
+                if (copyBtn) {
+                    e.stopPropagation();
+                    const idToCopy = copyBtn.dataset.id;
+                    if (idToCopy) {
+                        navigator.clipboard.writeText(idToCopy);
+                        copyBtn.innerHTML = '<i class="fas fa-check text-emerald-400 text-xs"></i>';
+                        setTimeout(() => {
+                            copyBtn.innerHTML = '<i class="fas fa-copy text-xs"></i>';
+                        }, 1600);
+                    }
+                    return;
+                }
+
+                const row = e.target.closest('.collection-item-row');
+                if (row) {
+                    const colId = row.dataset.collectionId;
+                    await switchCollection(colId);
+                }
+            });
+
+            // Modal Controls
+            document.querySelectorAll('.close-modal-btn').forEach(btn => {
+                btn.addEventListener('click', closeModals);
+            });
+
+            // Close on backdrop click
+            collectionsDialogModal?.addEventListener('click', (e) => {
+                if (e.target === collectionsDialogModal) closeModals();
+            });
+
+            // Close modal on Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && collectionsDialogModal && !collectionsDialogModal.classList.contains('hidden')) {
+                    closeModals();
+                }
+            });
+
+            // Search Bar Input
+            dialSearchInput?.addEventListener('input', (e) => {
+                searchQuery = (e.target.value || '').trim().toLowerCase();
+                clearSearchBtn?.classList.toggle('hidden', !searchQuery);
+                renderCurrentView();
+            });
+
+            clearSearchBtn?.addEventListener('click', () => {
+                if (dialSearchInput) dialSearchInput.value = '';
+                searchQuery = '';
+                clearSearchBtn?.classList.add('hidden');
+                renderCurrentView();
+                dialSearchInput?.focus();
+            });
+
+            // Back Folder Navigation
+            backFolderBtn?.addEventListener('click', () => {
+                if (folderHistory.length > 1) {
+                    folderHistory.pop();
+                    currentFolderId = folderHistory[folderHistory.length - 1].id;
+                    renderCurrentView();
+                }
+            });
+
+            // Breadcrumb Navigation (delegated)
+            breadcrumbsContainer?.addEventListener('click', (e) => {
+                const btn = e.target.closest('.breadcrumb-nav-btn');
+                if (btn) {
+                    const idx = parseInt(btn.dataset.idx, 10);
+                    folderHistory = folderHistory.slice(0, idx + 1);
+                    currentFolderId = folderHistory[folderHistory.length - 1].id;
+                    renderCurrentView();
+                }
+            });
+
+            // Keyboard Backspace navigation for folder hierarchy
+            window.addEventListener('keydown', (e) => {
+                if (dialSearchInput && document.activeElement === dialSearchInput) {
+                    if (e.key === 'Escape') {
+                        dialSearchInput.value = '';
+                        searchQuery = '';
+                        clearSearchBtn?.classList.add('hidden');
+                        renderCurrentView();
+                    }
+                    return;
+                }
+                if (collectionsSearchInput && document.activeElement === collectionsSearchInput) {
+                    return;
+                }
+                if (e.key === 'Backspace' && folderHistory.length > 1) {
+                    e.preventDefault();
+                    folderHistory.pop();
+                    currentFolderId = folderHistory[folderHistory.length - 1].id;
+                    renderCurrentView();
+                }
+            });
         });
     </script>
 </body>
