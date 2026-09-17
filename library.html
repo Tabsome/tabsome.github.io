@@ -77,10 +77,25 @@
         header,
         section,
         main,
-        footer,
-        .modal-layer {
+        footer {
             position: relative;
             z-index: 10;
+        }
+
+        .modal-layer {
+            position: fixed !important;
+            inset: 0 !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 9999 !important;
+        }
+
+        .modal-layer.hidden {
+            display: none !important;
         }
 
         .glass-header {
@@ -338,39 +353,24 @@
                 <!-- Left: Action Controls (Sync, Folder, Note, Link, Switcher) -->
                 <div class="flex flex-wrap items-center gap-2.5">
 
-                    <!-- Rich Collection Selector Dropdown -->
-                    <div id="collectionDropdownWrapper" class="relative inline-block text-left">
-                        <button id="collectionDropdownBtn" type="button"
-                            class="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-900 border border-white/20 text-white text-xs sm:text-sm font-semibold transition active:scale-95 cursor-pointer shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
-                            aria-haspopup="true" aria-expanded="false" title="Switch Collection">
-                            <span id="selectedCollectionIconWrapper" class="w-5 h-5 rounded-lg flex items-center justify-center text-xs bg-pink-500/20 text-pink-300 border border-pink-400/30 flex-shrink-0">
-                                <i id="selectedCollectionIcon" class="fas fa-folder"></i>
-                            </span>
-                            <span id="selectedCollectionName" class="max-w-[130px] sm:max-w-[180px] truncate text-white">My Library</span>
-                            <span id="selectedCollectionDefaultBadge" class="hidden px-1.5 py-0.5 rounded text-[10px] font-bold uppercase bg-pink-500/25 text-pink-300 border border-pink-500/30">DEFAULT</span>
-                            <i class="fas fa-chevron-down text-gray-400 text-[10px] ml-0.5"></i>
-                        </button>
+                    <!-- Current Active Collection Pill Button -->
+                    <button id="currentCollectionBtn" type="button"
+                        class="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-900 border border-white/20 text-white text-xs sm:text-sm font-semibold transition active:scale-95 cursor-pointer shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
+                        title="Currently active collection. Click to browse collections.">
+                        <span id="selectedCollectionIconWrapper" class="w-5 h-5 rounded-lg flex items-center justify-center text-xs bg-pink-500/20 text-pink-300 border border-pink-400/30 flex-shrink-0">
+                            <i id="selectedCollectionIcon" class="fas fa-folder"></i>
+                        </span>
+                        <span id="selectedCollectionName" class="max-w-[130px] sm:max-w-[180px] truncate text-white">Default Collection</span>
+                        <span id="selectedCollectionDefaultBadge" class="hidden px-1.5 py-0.5 rounded text-[10px] font-bold uppercase bg-pink-500/25 text-pink-300 border border-pink-500/30">DEFAULT</span>
+                    </button>
 
-                        <!-- Dropdown Menu -->
-                        <div id="collectionDropdownMenu"
-                            class="hidden absolute left-0 mt-2 w-80 sm:w-96 origin-top-left rounded-2xl bg-slate-900/95 backdrop-blur-xl border border-white/20 shadow-2xl p-2 z-50 transform transition-all">
-                            <div class="px-3 py-2 border-b border-white/10 flex items-center justify-between">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs font-bold uppercase tracking-wider text-gray-300">Collections</span>
-                                    <span id="collectionCountBadge" class="px-1.5 py-0.2 rounded-full bg-white/10 text-[10px] font-semibold text-pink-300">0</span>
-                                </div>
-                                <button id="openNewCollectionModalBtn" type="button"
-                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/30 text-pink-300 hover:text-white text-[11px] font-semibold transition cursor-pointer">
-                                    <i class="fas fa-plus text-[10px]"></i>
-                                    <span>New</span>
-                                </button>
-                            </div>
-                            <!-- Scrollable collections list -->
-                            <div id="collectionsListContainer" class="max-h-72 overflow-y-auto py-1 space-y-1 breadcrumb-scroll">
-                                <!-- Populated dynamically -->
-                            </div>
-                        </div>
-                    </div>
+                    <!-- All Collections CTA Button -->
+                    <button id="openCollectionsModalBtn" type="button"
+                        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/40 text-pink-200 hover:text-white text-xs sm:text-sm font-semibold transition active:scale-95 cursor-pointer shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
+                        title="Browse and Switch Collections">
+                        <i class="fas fa-layer-group text-pink-400 text-xs"></i>
+                        <span>All Collections</span>
+                    </button>
 
                     <!-- Refresh Button -->
                     <button id="refreshBtn" type="button"
@@ -803,6 +803,84 @@
             </form>
         </div>
     </div>
+
+    <!-- All Collections Dialog Modal -->
+    <div id="collectionsDialogModal"
+        class="modal-layer hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
+        <div class="glass-card max-w-xl w-full rounded-3xl p-6 sm:p-7 border border-white/20 shadow-2xl relative flex flex-col max-h-[88vh]">
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between pb-4 border-b border-white/10 flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-pink-500/20 border border-pink-500/30 text-pink-300 flex items-center justify-center text-sm shadow-sm">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-lg sm:text-xl font-extrabold text-white">Collections</h3>
+                            <span id="collectionsModalCountBadge" class="px-2 py-0.5 rounded-full bg-white/10 text-xs font-semibold text-pink-300 border border-white/10">0</span>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-0.5">Select a collection to view and manage its links and folders</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" id="openNewCollectionFromDialogBtn"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/40 text-pink-200 hover:text-white text-xs font-semibold transition cursor-pointer active:scale-95 shadow-sm">
+                        <i class="fas fa-plus text-[10px]"></i>
+                        <span>New</span>
+                    </button>
+                    <button type="button" class="close-modal-btn text-gray-400 hover:text-white text-lg p-1.5 rounded-lg hover:bg-white/10 transition cursor-pointer">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search & Reload Bar -->
+            <div class="pt-3 pb-2 flex items-center gap-2 flex-shrink-0">
+                <div class="relative flex-1">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+                    <input type="text" id="collectionsSearchInput" placeholder="Filter collections by name..."
+                        class="w-full bg-slate-900/70 border border-white/15 rounded-xl pl-8 pr-3 py-2 text-xs text-white placeholder-gray-400 focus:outline-none focus:border-pink-400 transition" />
+                </div>
+                <button type="button" id="collectionsModalRefreshBtn"
+                    class="px-2.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-gray-300 hover:text-white text-xs transition cursor-pointer"
+                    title="Reload collections list">
+                    <i id="collectionsModalRefreshIcon" class="fas fa-arrows-rotate text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Loading Skeleton -->
+            <div id="collectionsModalLoadingSkeleton" class="hidden py-10 flex flex-col items-center justify-center gap-3">
+                <i class="fas fa-circle-notch fa-spin text-pink-400 text-2xl"></i>
+                <span class="text-xs font-medium text-gray-300">Fetching your collections...</span>
+            </div>
+
+            <!-- Scrollable Collections List -->
+            <div id="collectionsModalListContainer" class="flex-1 overflow-y-auto py-2 space-y-2 breadcrumb-scroll pr-1 max-h-[50vh]">
+                <!-- Populated dynamically -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="collectionsModalEmptyState" class="hidden py-8 text-center flex flex-col items-center justify-center">
+                <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 mb-2">
+                    <i class="fas fa-folder-open text-lg"></i>
+                </div>
+                <p class="text-xs font-semibold text-gray-300">No collections found</p>
+                <p class="text-[11px] text-gray-500 mt-0.5">Try searching for a different keyword or create a new collection.</p>
+            </div>
+
+            <!-- Footer -->
+            <div class="pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-gray-400 flex-shrink-0">
+                <span class="flex items-center gap-1.5">
+                    <i class="fas fa-bolt text-amber-400 text-[10px]"></i>
+                    <span>Loaded on demand to minimize network requests</span>
+                </span>
+                <button type="button" class="close-modal-btn px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold transition cursor-pointer">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         AOS.init({ duration: 600, once: true });
@@ -817,6 +895,7 @@
 
         // In-memory Library Database
         let collectionsList = [];
+        let hasFetchedCollectionsList = false;
         let activeCollectionId = null;
         let activeCollectionData = null;
         let allFolders = [];
@@ -843,17 +922,24 @@
         const libraryContainer = document.getElementById('libraryContainer');
         const activeCollectionBadge = document.getElementById('activeCollectionBadge');
 
-        // Collection Dropdown Elements
-        const collectionDropdownWrapper = document.getElementById('collectionDropdownWrapper');
-        const collectionDropdownBtn = document.getElementById('collectionDropdownBtn');
-        const collectionDropdownMenu = document.getElementById('collectionDropdownMenu');
+        // Collection Switcher & Dialog Elements
+        const currentCollectionBtn = document.getElementById('currentCollectionBtn');
+        const openCollectionsModalBtn = document.getElementById('openCollectionsModalBtn');
         const selectedCollectionName = document.getElementById('selectedCollectionName');
         const selectedCollectionDefaultBadge = document.getElementById('selectedCollectionDefaultBadge');
         const selectedCollectionIconWrapper = document.getElementById('selectedCollectionIconWrapper');
         const selectedCollectionIcon = document.getElementById('selectedCollectionIcon');
-        const collectionCountBadge = document.getElementById('collectionCountBadge');
-        const collectionsListContainer = document.getElementById('collectionsListContainer');
-        const openNewCollectionModalBtn = document.getElementById('openNewCollectionModalBtn');
+
+        // Collections Dialog Modal Elements
+        const collectionsDialogModal = document.getElementById('collectionsDialogModal');
+        const collectionsModalCountBadge = document.getElementById('collectionsModalCountBadge');
+        const collectionsSearchInput = document.getElementById('collectionsSearchInput');
+        const collectionsModalRefreshBtn = document.getElementById('collectionsModalRefreshBtn');
+        const collectionsModalRefreshIcon = document.getElementById('collectionsModalRefreshIcon');
+        const collectionsModalLoadingSkeleton = document.getElementById('collectionsModalLoadingSkeleton');
+        const collectionsModalListContainer = document.getElementById('collectionsModalListContainer');
+        const collectionsModalEmptyState = document.getElementById('collectionsModalEmptyState');
+        const openNewCollectionFromDialogBtn = document.getElementById('openNewCollectionFromDialogBtn');
 
         // Refresh Button Elements
         const refreshBtn = document.getElementById('refreshBtn');
@@ -881,6 +967,18 @@
         const noteForm = document.getElementById('noteForm');
         const folderForm = document.getElementById('folderForm');
         const collectionForm = document.getElementById('collectionForm');
+
+        function openModal(modal) {
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeModals() {
+            linkModal?.classList.add('hidden');
+            noteModal?.classList.add('hidden');
+            folderModal?.classList.add('hidden');
+            collectionModal?.classList.add('hidden');
+            collectionsDialogModal?.classList.add('hidden');
+        }
 
         // Helper UUID generator
         function generateUUID() {
@@ -1114,22 +1212,8 @@
             libraryContainer.classList.add('hidden');
 
             try {
-                // 1. Fetch user collections listing with metadata
-                await fetchUserCollections();
-
-                // 2. Fetch active/default collection
-                const targetId = preferredColId || activeCollectionId;
-                const targetInList = targetId ? collectionsList.find(c => c.id === targetId) : null;
-
-                if (targetInList && !targetInList.isDefault) {
-                    const loaded = await fetchCollectionDetails(targetId);
-                    if (!loaded) {
-                        await fetchDefaultCollection();
-                    }
-                } else {
-                    // Standard: always fetch default collection on load
-                    await fetchDefaultCollection();
-                }
+                // Fetch default collection directly on startup without listing all collections
+                await fetchDefaultCollection();
             } catch (err) {
                 console.error('Error initializing library:', err);
             } finally {
@@ -1146,12 +1230,12 @@
             refreshStatusText.textContent = 'Refreshing...';
 
             try {
-                await fetchUserCollections();
-                const activeCol = collectionsList.find(c => c.id === activeCollectionId);
-                if (activeCol && !activeCol.isDefault) {
-                    await fetchCollectionDetails(activeCollectionId);
-                } else {
+                // Only refresh the currently active collection, avoiding redundant collections listing
+                const activeCol = collectionsList.find(c => c.id === activeCollectionId) || activeCollectionData;
+                if (activeCol?.isDefault || !activeCollectionId) {
                     await fetchDefaultCollection();
+                } else {
+                    await fetchCollectionDetails(activeCollectionId);
                 }
                 refreshStatusText.textContent = 'Refreshed';
             } catch (err) {
@@ -1167,23 +1251,25 @@
         }
 
         async function switchCollection(colId) {
-            if (!colId || colId === activeCollectionId) {
-                collectionDropdownMenu.classList.add('hidden');
+            closeModals();
+            if (!colId) return;
+            if (String(colId) === String(activeCollectionId)) {
                 return;
             }
-            collectionDropdownMenu.classList.add('hidden');
             activeCollectionId = colId;
             loadingSkeleton.classList.remove('hidden');
             libraryContainer.classList.add('hidden');
             emptyState.classList.add('hidden');
 
             try {
-                const selectedCol = collectionsList.find(c => c.id === colId);
+                const selectedCol = collectionsList.find(c => String(c.id) === String(colId));
                 if (selectedCol?.isDefault) {
                     await fetchDefaultCollection();
                 } else {
                     await fetchCollectionDetails(colId);
                 }
+            } catch (err) {
+                console.error(`Failed to switch to collection ${colId}:`, err);
             } finally {
                 loadingSkeleton.classList.add('hidden');
                 renderCollectionSelector();
@@ -1192,43 +1278,145 @@
         }
 
         // =========================================================================
-        // UI RENDERING & FILTERING
+        // COLLECTIONS DIALOG CONTROLLER
         // =========================================================================
-        function renderCollectionSelector() {
-            if (!collectionsList || collectionsList.length === 0) {
-                const fallbackName = activeCollectionData?.name || 'My Library';
-                selectedCollectionName.textContent = fallbackName;
-                selectedCollectionDefaultBadge.classList.toggle('hidden', !activeCollectionData?.isDefault);
-                collectionCountBadge.textContent = activeCollectionData ? '1' : '0';
-                collectionsListContainer.innerHTML = `
-                    <div class="px-3 py-4 text-center text-xs text-gray-400">
-                        No additional collections found.
-                    </div>
-                `;
+        async function openCollectionsDialog() {
+            if (collectionsDialogModal) {
+                collectionsDialogModal.classList.remove('hidden');
+            }
+            if (collectionsSearchInput) {
+                collectionsSearchInput.value = '';
+            }
+
+            // Lazy-fetch collections list on-demand if not yet loaded
+            if (!hasFetchedCollectionsList) {
+                if (collectionsModalLoadingSkeleton) collectionsModalLoadingSkeleton.classList.remove('hidden');
+                if (collectionsModalListContainer) collectionsModalListContainer.classList.add('hidden');
+                if (collectionsModalEmptyState) collectionsModalEmptyState.classList.add('hidden');
+
+                await fetchUserCollections();
+                hasFetchedCollectionsList = true;
+
+                if (collectionsModalLoadingSkeleton) collectionsModalLoadingSkeleton.classList.add('hidden');
+                if (collectionsModalListContainer) collectionsModalListContainer.classList.remove('hidden');
+            }
+
+            renderCollectionsDialogList();
+        }
+
+        function renderCollectionsDialogList() {
+            if (!collectionsModalListContainer) return;
+
+            const q = (collectionsSearchInput?.value || '').trim().toLowerCase();
+            let listToRender = collectionsList || [];
+
+            // If list is empty but we have activeCollectionData, display it as a fallback
+            if (listToRender.length === 0 && activeCollectionData) {
+                listToRender = [activeCollectionData];
+            }
+
+            if (q) {
+                listToRender = listToRender.filter(c =>
+                    (c.name || '').toLowerCase().includes(q) ||
+                    (c.description || '').toLowerCase().includes(q)
+                );
+            }
+
+            if (collectionsModalCountBadge) {
+                collectionsModalCountBadge.textContent = `${collectionsList.length || (activeCollectionData ? 1 : 0)}`;
+            }
+
+            if (listToRender.length === 0) {
+                collectionsModalListContainer.innerHTML = '';
+                collectionsModalListContainer.classList.add('hidden');
+                collectionsModalEmptyState?.classList.remove('hidden');
                 return;
             }
 
-            collectionCountBadge.textContent = collectionsList.length;
+            collectionsModalEmptyState?.classList.add('hidden');
+            collectionsModalListContainer.classList.remove('hidden');
 
-            let activeCol = collectionsList.find(c => c.id === activeCollectionId) || activeCollectionData;
+            collectionsModalListContainer.innerHTML = listToRender.map(col => {
+                const isSelected = col.id === activeCollectionId;
+                const iconClass = resolveCollectionIcon(col.icon);
+                const colColor = col.color || '#ec4899';
+                const statsSummary = [
+                    `${col.linksCount || 0} links`,
+                    `${col.notesCount || 0} notes`,
+                    `${col.foldersCount || 0} folders`
+                ].join(' · ');
+
+                return `
+                    <div class="collection-item-row group flex items-center justify-between gap-3 p-3 sm:p-3.5 rounded-2xl transition cursor-pointer border ${
+                        isSelected
+                            ? 'bg-pink-500/15 border-pink-500/40 shadow-sm'
+                            : 'bg-slate-900/60 hover:bg-slate-900/90 border-white/10 hover:border-white/25'
+                    }" data-collection-id="${col.id}">
+                        <div class="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-sm flex-shrink-0 shadow-sm"
+                                style="background-color: ${colColor}20; border: 1px solid ${colColor}45; color: ${colColor};">
+                                <i class="fas ${iconClass}"></i>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span class="text-xs sm:text-sm font-bold text-white truncate group-hover:text-pink-300 transition">${escapeHtml(col.name)}</span>
+                                    ${col.isDefault ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-pink-500/30 text-pink-300 border border-pink-500/40">DEFAULT</span>` : ''}
+                                    ${col.isSystem ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-purple-500/30 text-purple-300 border border-purple-500/40">SYSTEM</span>` : ''}
+                                </div>
+                                ${col.description ? `<p class="text-xs text-gray-300 truncate mt-0.5">${escapeHtml(col.description)}</p>` : ''}
+                                <div class="flex items-center gap-2 mt-1 text-[10px] sm:text-[11px] text-gray-400 font-medium">
+                                    <span>${statsSummary}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            ${isSelected
+                                ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-pink-500/20 text-pink-300 border border-pink-500/30 text-xs font-semibold"><i class="fas fa-check text-[10px]"></i> Active</span>`
+                                : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 group-hover:bg-pink-500 group-hover:text-white text-gray-300 text-xs font-semibold transition"><span>View</span> <i class="fas fa-arrow-right text-[10px]"></i></span>`
+                            }
+                            <button type="button" class="copy-col-id-btn p-1.5 text-gray-400 hover:text-white rounded-lg hover:bg-white/10 transition cursor-pointer" data-id="${col.id}" title="Copy Collection ID">
+                                <i class="fas fa-copy text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // =========================================================================
+        // UI RENDERING & FILTERING
+        // =========================================================================
+        function renderCollectionSelector() {
+            let activeCol = (collectionsList && collectionsList.find(c => c.id === activeCollectionId)) || activeCollectionData;
+
             if (!activeCol && collectionsList.length > 0) {
                 activeCol = collectionsList.find(c => c.isDefault) || collectionsList[0];
-                activeCollectionId = activeCol.id;
+                activeCollectionId = activeCol?.id || null;
             }
 
-            const currentName = activeCol?.name || 'My Library';
+            const currentName = activeCol?.name || 'Default Collection';
             const isDefault = Boolean(activeCol?.isDefault);
             const currentColor = activeCol?.color || '#ec4899';
             const currentIcon = resolveCollectionIcon(activeCol?.icon);
 
-            selectedCollectionName.textContent = currentName;
-            selectedCollectionName.title = currentName;
-            selectedCollectionDefaultBadge.classList.toggle('hidden', !isDefault);
+            if (selectedCollectionName) {
+                selectedCollectionName.textContent = currentName;
+                selectedCollectionName.title = currentName;
+            }
 
-            selectedCollectionIcon.className = `fas ${currentIcon}`;
-            selectedCollectionIconWrapper.style.backgroundColor = `${currentColor}25`;
-            selectedCollectionIconWrapper.style.borderColor = `${currentColor}40`;
-            selectedCollectionIconWrapper.style.color = currentColor;
+            if (selectedCollectionDefaultBadge) {
+                selectedCollectionDefaultBadge.classList.toggle('hidden', !isDefault);
+            }
+
+            if (selectedCollectionIcon) {
+                selectedCollectionIcon.className = `fas ${currentIcon}`;
+            }
+
+            if (selectedCollectionIconWrapper) {
+                selectedCollectionIconWrapper.style.backgroundColor = `${currentColor}25`;
+                selectedCollectionIconWrapper.style.borderColor = `${currentColor}40`;
+                selectedCollectionIconWrapper.style.color = currentColor;
+            }
 
             // Update badge on title row
             if (activeCollectionBadge) {
@@ -1242,52 +1430,10 @@
                 activeCollectionBadge.classList.remove('hidden');
             }
 
-            // Render list of collection cards inside dropdown menu
-            collectionsListContainer.innerHTML = collectionsList.map(col => {
-                const isSelected = col.id === activeCollectionId;
-                const iconClass = resolveCollectionIcon(col.icon);
-                const colColor = col.color || '#ec4899';
-                const statsSummary = [
-                    `${col.linksCount || 0} links`,
-                    `${col.notesCount || 0} notes`,
-                    `${col.foldersCount || 0} folders`
-                ].join(' · ');
-
-                return `
-                    <div class="collection-item-row group flex items-start justify-between gap-3 p-2.5 rounded-xl transition cursor-pointer ${
-                        isSelected
-                            ? 'bg-white/15 border border-white/20'
-                            : 'hover:bg-white/10 border border-transparent'
-                    }" data-collection-id="${col.id}">
-                        <div class="flex items-start gap-2.5 min-w-0 flex-1">
-                            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs flex-shrink-0 mt-0.5 shadow-sm"
-                                style="background-color: ${colColor}25; border: 1px solid ${colColor}45; color: ${colColor};">
-                                <i class="fas ${iconClass}"></i>
-                            </div>
-                            <div class="min-w-0 flex-1">
-                                <div class="flex items-center gap-1.5 flex-wrap">
-                                    <span class="text-xs font-bold text-white truncate group-hover:text-pink-300 transition">${escapeHtml(col.name)}</span>
-                                    ${col.isDefault ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase bg-pink-500/30 text-pink-300 border border-pink-500/40">DEFAULT</span>` : ''}
-                                    ${col.isSystem ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase bg-purple-500/30 text-purple-300 border border-purple-500/40">SYSTEM</span>` : ''}
-                                </div>
-                                ${col.description ? `<p class="text-[11px] text-gray-300 truncate mt-0.5">${escapeHtml(col.description)}</p>` : ''}
-                                <div class="flex items-center gap-2 mt-1 text-[10px] text-gray-400 font-medium">
-                                    <span>${statsSummary}</span>
-                                </div>
-                                <div class="mt-1 flex items-center gap-1 text-[9px] font-mono text-gray-400 opacity-70 group-hover:opacity-100 transition">
-                                    <span class="truncate max-w-[140px]" title="${col.id}">ID: ${col.id}</span>
-                                    <button type="button" class="copy-col-id-btn p-0.5 hover:text-white transition cursor-pointer" data-id="${col.id}" title="Copy Collection ID">
-                                        <i class="fas fa-copy"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex items-center pt-1">
-                            ${isSelected ? `<i class="fas fa-check text-pink-400 text-xs flex-shrink-0"></i>` : ''}
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            // If collections modal is currently visible, refresh its list
+            if (collectionsDialogModal && !collectionsDialogModal.classList.contains('hidden')) {
+                renderCollectionsDialogList();
+            }
         }
 
         function renderBreadcrumbs() {
@@ -1658,7 +1804,9 @@
                 if (res.ok) {
                     const result = await res.json();
                     if (result.success && result.data) {
-                        await fetchUserCollections();
+                        if (collectionsList && collectionsList.length > 0) {
+                            collectionsList.push(result.data);
+                        }
                         await switchCollection(result.data.id);
                     }
                 } else {
@@ -1873,6 +2021,8 @@
                     if (!user) {
                         lastUserId = null;
                         initialLoadPerformed = false;
+                        hasFetchedCollectionsList = false;
+                        collectionsList = [];
                         loadingSkeleton.classList.add('hidden');
                         libraryContainer.classList.add('hidden');
                         emptyState.classList.add('hidden');
@@ -1894,30 +2044,41 @@
             // Refresh Trigger
             refreshBtn?.addEventListener('click', () => refreshLibraryData());
 
-            // Collection Switcher Dropdown Toggle
-            collectionDropdownBtn?.addEventListener('click', (e) => {
-                e.stopPropagation();
-                collectionDropdownMenu.classList.toggle('hidden');
+            // Collections Dialog Modal Open Triggers
+            currentCollectionBtn?.addEventListener('click', () => openCollectionsDialog());
+            openCollectionsModalBtn?.addEventListener('click', () => openCollectionsDialog());
+
+            // Collections Dialog Search Filtering
+            collectionsSearchInput?.addEventListener('input', () => {
+                renderCollectionsDialogList();
             });
 
-            // Close collection dropdown on document click
-            document.addEventListener('click', (e) => {
-                if (collectionDropdownWrapper && !collectionDropdownWrapper.contains(e.target)) {
-                    collectionDropdownMenu.classList.add('hidden');
+            // Collections Dialog Refresh Trigger
+            collectionsModalRefreshBtn?.addEventListener('click', async () => {
+                collectionsModalRefreshIcon?.classList.add('fa-spin');
+                if (collectionsModalLoadingSkeleton) collectionsModalLoadingSkeleton.classList.remove('hidden');
+                if (collectionsModalListContainer) collectionsModalListContainer.classList.add('hidden');
+                try {
+                    await fetchUserCollections();
+                } finally {
+                    collectionsModalRefreshIcon?.classList.remove('fa-spin');
+                    if (collectionsModalLoadingSkeleton) collectionsModalLoadingSkeleton.classList.add('hidden');
+                    if (collectionsModalListContainer) collectionsModalListContainer.classList.remove('hidden');
+                    renderCollectionsDialogList();
                 }
             });
 
-            // Collection Switcher List Click (delegated)
-            collectionsListContainer?.addEventListener('click', async (e) => {
+            // Collections Dialog Modal Selection / Copy (delegated)
+            collectionsModalListContainer?.addEventListener('click', async (e) => {
                 const copyBtn = e.target.closest('.copy-col-id-btn');
                 if (copyBtn) {
                     e.stopPropagation();
                     const idToCopy = copyBtn.dataset.id;
                     if (idToCopy) {
                         navigator.clipboard.writeText(idToCopy);
-                        copyBtn.innerHTML = '<i class="fas fa-check text-emerald-400"></i>';
+                        copyBtn.innerHTML = '<i class="fas fa-check text-emerald-400 text-xs"></i>';
                         setTimeout(() => {
-                            copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                            copyBtn.innerHTML = '<i class="fas fa-copy text-xs"></i>';
                         }, 1600);
                     }
                     return;
@@ -2050,11 +2211,12 @@
                 noteModal?.classList.add('hidden');
                 folderModal?.classList.add('hidden');
                 collectionModal?.classList.add('hidden');
+                collectionsDialogModal?.classList.add('hidden');
             }
 
-            openNewCollectionModalBtn?.addEventListener('click', (e) => {
+            openNewCollectionFromDialogBtn?.addEventListener('click', (e) => {
                 e.stopPropagation();
-                collectionDropdownMenu.classList.add('hidden');
+                closeModals();
                 collectionForm.reset();
                 openModal(collectionModal);
             });
@@ -2079,10 +2241,17 @@
             });
 
             // Close on backdrop click
-            [linkModal, noteModal, folderModal, collectionModal].forEach(modal => {
+            [linkModal, noteModal, folderModal, collectionModal, collectionsDialogModal].forEach(modal => {
                 modal?.addEventListener('click', (e) => {
                     if (e.target === modal) closeModals();
                 });
+            });
+
+            // Close modal on Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeModals();
+                }
             });
 
             // Forms Submit Handlers
