@@ -338,23 +338,46 @@
                 <!-- Left: Action Controls (Sync, Folder, Note, Link, Switcher) -->
                 <div class="flex flex-wrap items-center gap-2.5">
 
-                    <!-- Collection Selector -->
-                    <div id="collectionSelectorWrapper" class="hidden relative">
-                        <i
-                            class="fas fa-layer-group absolute left-3.5 top-1/2 -translate-y-1/2 text-pink-300 text-xs pointer-events-none"></i>
-                        <select id="collectionSelect"
-                            class="bg-slate-900/80 hover:bg-slate-900 border border-white/20 text-white text-xs sm:text-sm font-semibold rounded-xl pl-9 pr-8 py-2.5 focus:outline-none focus:ring-2 focus:ring-pink-400 appearance-none cursor-pointer transition">
-                        </select>
-                        <i
-                            class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-[10px] pointer-events-none"></i>
+                    <!-- Rich Collection Selector Dropdown -->
+                    <div id="collectionDropdownWrapper" class="relative inline-block text-left">
+                        <button id="collectionDropdownBtn" type="button"
+                            class="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-900 border border-white/20 text-white text-xs sm:text-sm font-semibold transition active:scale-95 cursor-pointer shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
+                            aria-haspopup="true" aria-expanded="false" title="Switch Collection">
+                            <span id="selectedCollectionIconWrapper" class="w-5 h-5 rounded-lg flex items-center justify-center text-xs bg-pink-500/20 text-pink-300 border border-pink-400/30 flex-shrink-0">
+                                <i id="selectedCollectionIcon" class="fas fa-folder"></i>
+                            </span>
+                            <span id="selectedCollectionName" class="max-w-[130px] sm:max-w-[180px] truncate text-white">My Library</span>
+                            <span id="selectedCollectionDefaultBadge" class="hidden px-1.5 py-0.5 rounded text-[10px] font-bold uppercase bg-pink-500/25 text-pink-300 border border-pink-500/30">DEFAULT</span>
+                            <i class="fas fa-chevron-down text-gray-400 text-[10px] ml-0.5"></i>
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div id="collectionDropdownMenu"
+                            class="hidden absolute left-0 mt-2 w-80 sm:w-96 origin-top-left rounded-2xl bg-slate-900/95 backdrop-blur-xl border border-white/20 shadow-2xl p-2 z-50 transform transition-all">
+                            <div class="px-3 py-2 border-b border-white/10 flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-bold uppercase tracking-wider text-gray-300">Collections</span>
+                                    <span id="collectionCountBadge" class="px-1.5 py-0.2 rounded-full bg-white/10 text-[10px] font-semibold text-pink-300">0</span>
+                                </div>
+                                <button id="openNewCollectionModalBtn" type="button"
+                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/30 text-pink-300 hover:text-white text-[11px] font-semibold transition cursor-pointer">
+                                    <i class="fas fa-plus text-[10px]"></i>
+                                    <span>New</span>
+                                </button>
+                            </div>
+                            <!-- Scrollable collections list -->
+                            <div id="collectionsListContainer" class="max-h-72 overflow-y-auto py-1 space-y-1 breadcrumb-scroll">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Sync Status & Manual Sync Button -->
-                    <button id="syncNowBtn" type="button"
+                    <!-- Refresh Button -->
+                    <button id="refreshBtn" type="button"
                         class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold text-white transition active:scale-95 cursor-pointer shadow-sm"
-                        title="Synchronize with /api/v3/users/me/library/sync">
-                        <i id="syncIcon" class="fas fa-arrows-rotate text-pink-300 text-xs"></i>
-                        <span id="syncStatusText">Sync</span>
+                        title="Reload Collections & Items">
+                        <i id="refreshIcon" class="fas fa-arrows-rotate text-pink-300 text-xs"></i>
+                        <span id="refreshStatusText">Refresh</span>
                     </button>
 
                     <!-- Add Folder Button -->
@@ -668,19 +691,129 @@
         </div>
     </div>
 
-    <!-- Init Scripts & Library Engine -->
+    <!-- Add New Collection Modal -->
+    <div id="collectionModal"
+        class="modal-layer hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div class="glass-card max-w-md w-full rounded-3xl p-6 sm:p-8 border border-white/20 shadow-2xl relative">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-extrabold text-white flex items-center gap-2">
+                    <i class="fas fa-layer-group text-pink-400"></i>
+                    <span>Create Collection</span>
+                </h3>
+                <button type="button" class="close-modal-btn text-gray-400 hover:text-white text-lg cursor-pointer">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="collectionForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">Collection Name <span
+                            class="text-pink-400">*</span></label>
+                    <input type="text" id="collectionNameInput" required placeholder="e.g. Work Projects, Design, Research"
+                        class="w-full bg-slate-900/80 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-pink-400" />
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">Description (Optional)</label>
+                    <input type="text" id="collectionDescInput" placeholder="Brief note about this collection"
+                        class="w-full bg-slate-900/80 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-pink-400" />
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">Color Theme</label>
+                    <div class="flex items-center gap-3 flex-wrap" id="collectionColorPicker">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="radio" name="colColor" value="#ec4899" checked class="sr-only peer" />
+                            <span class="w-6 h-6 rounded-full bg-pink-500 border-2 border-transparent peer-checked:border-white peer-checked:scale-110 transition block shadow-sm"></span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="radio" name="colColor" value="#8b5cf6" class="sr-only peer" />
+                            <span class="w-6 h-6 rounded-full bg-purple-500 border-2 border-transparent peer-checked:border-white peer-checked:scale-110 transition block shadow-sm"></span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="radio" name="colColor" value="#3b82f6" class="sr-only peer" />
+                            <span class="w-6 h-6 rounded-full bg-blue-500 border-2 border-transparent peer-checked:border-white peer-checked:scale-110 transition block shadow-sm"></span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="radio" name="colColor" value="#10b981" class="sr-only peer" />
+                            <span class="w-6 h-6 rounded-full bg-emerald-500 border-2 border-transparent peer-checked:border-white peer-checked:scale-110 transition block shadow-sm"></span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="radio" name="colColor" value="#f59e0b" class="sr-only peer" />
+                            <span class="w-6 h-6 rounded-full bg-amber-500 border-2 border-transparent peer-checked:border-white peer-checked:scale-110 transition block shadow-sm"></span>
+                        </label>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="radio" name="colColor" value="#6366f1" class="sr-only peer" />
+                            <span class="w-6 h-6 rounded-full bg-indigo-500 border-2 border-transparent peer-checked:border-white peer-checked:scale-110 transition block shadow-sm"></span>
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">Icon</label>
+                    <div class="grid grid-cols-6 gap-2" id="collectionIconPicker">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="colIcon" value="folder" checked class="sr-only peer" />
+                            <div class="h-9 rounded-xl border border-white/20 peer-checked:border-pink-400 peer-checked:bg-pink-500/20 flex items-center justify-center text-gray-300 peer-checked:text-pink-300 transition">
+                                <i class="fas fa-folder text-sm"></i>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="colIcon" value="bookmark" class="sr-only peer" />
+                            <div class="h-9 rounded-xl border border-white/20 peer-checked:border-pink-400 peer-checked:bg-pink-500/20 flex items-center justify-center text-gray-300 peer-checked:text-pink-300 transition">
+                                <i class="fas fa-bookmark text-sm"></i>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="colIcon" value="rocket" class="sr-only peer" />
+                            <div class="h-9 rounded-xl border border-white/20 peer-checked:border-pink-400 peer-checked:bg-pink-500/20 flex items-center justify-center text-gray-300 peer-checked:text-pink-300 transition">
+                                <i class="fas fa-rocket text-sm"></i>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="colIcon" value="book" class="sr-only peer" />
+                            <div class="h-9 rounded-xl border border-white/20 peer-checked:border-pink-400 peer-checked:bg-pink-500/20 flex items-center justify-center text-gray-300 peer-checked:text-pink-300 transition">
+                                <i class="fas fa-book text-sm"></i>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="colIcon" value="star" class="sr-only peer" />
+                            <div class="h-9 rounded-xl border border-white/20 peer-checked:border-pink-400 peer-checked:bg-pink-500/20 flex items-center justify-center text-gray-300 peer-checked:text-pink-300 transition">
+                                <i class="fas fa-star text-sm"></i>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="colIcon" value="compass" class="sr-only peer" />
+                            <div class="h-9 rounded-xl border border-white/20 peer-checked:border-pink-400 peer-checked:bg-pink-500/20 flex items-center justify-center text-gray-300 peer-checked:text-pink-300 transition">
+                                <i class="fas fa-compass text-sm"></i>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <div class="pt-1">
+                    <label class="inline-flex items-center gap-2 cursor-pointer text-xs text-gray-300 select-none">
+                        <input type="checkbox" id="collectionIsDefaultInput" class="w-4 h-4 rounded bg-slate-900 border-white/20 accent-pink-500" />
+                        <span>Set as Default Collection</span>
+                    </label>
+                </div>
+                <div class="flex justify-end gap-3 pt-4 border-t border-white/10">
+                    <button type="button"
+                        class="close-modal-btn px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-gray-200 transition">Cancel</button>
+                    <button type="submit" id="saveCollectionSubmitBtn"
+                        class="px-5 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-xs font-bold text-white transition shadow-md">
+                        Create Collection
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         AOS.init({ duration: 600, once: true });
 
         // =========================================================================
-        // CLIENT STATE & SYNC CONTROLLER
+        // CLIENT STATE & LIBRARY CONTROLLER
         // =========================================================================
         const API_BASE_URL = window.TabsomeConfig?.API_BASE_URL || window.API_BASE_URL || 'https://tabsome.vercel.app';
 
         let currentUser = null;
-        let storedCursor = null;
-        let isSyncing = false;
+        let isRefreshing = false;
 
         // In-memory Library Database
         let collectionsList = [];
@@ -699,7 +832,6 @@
 
         // Local Storage Keys
         const STORAGE_KEY_DATA = 'tabsome_library_data';
-        const STORAGE_KEY_CURSOR = 'tabsome_library_cursor';
 
         // DOM Element References
         const unauthPrompt = document.getElementById('unauthPrompt');
@@ -710,11 +842,25 @@
         const emptyDesc = document.getElementById('emptyDesc');
         const libraryContainer = document.getElementById('libraryContainer');
         const activeCollectionBadge = document.getElementById('activeCollectionBadge');
-        const collectionSelectorWrapper = document.getElementById('collectionSelectorWrapper');
-        const collectionSelect = document.getElementById('collectionSelect');
-        const syncNowBtn = document.getElementById('syncNowBtn');
-        const syncIcon = document.getElementById('syncIcon');
-        const syncStatusText = document.getElementById('syncStatusText');
+
+        // Collection Dropdown Elements
+        const collectionDropdownWrapper = document.getElementById('collectionDropdownWrapper');
+        const collectionDropdownBtn = document.getElementById('collectionDropdownBtn');
+        const collectionDropdownMenu = document.getElementById('collectionDropdownMenu');
+        const selectedCollectionName = document.getElementById('selectedCollectionName');
+        const selectedCollectionDefaultBadge = document.getElementById('selectedCollectionDefaultBadge');
+        const selectedCollectionIconWrapper = document.getElementById('selectedCollectionIconWrapper');
+        const selectedCollectionIcon = document.getElementById('selectedCollectionIcon');
+        const collectionCountBadge = document.getElementById('collectionCountBadge');
+        const collectionsListContainer = document.getElementById('collectionsListContainer');
+        const openNewCollectionModalBtn = document.getElementById('openNewCollectionModalBtn');
+
+        // Refresh Button Elements
+        const refreshBtn = document.getElementById('refreshBtn');
+        const refreshIcon = document.getElementById('refreshIcon');
+        const refreshStatusText = document.getElementById('refreshStatusText');
+
+        // Navigation & Filter Elements
         const breadcrumbsContainer = document.getElementById('breadcrumbsContainer');
         const backFolderBtn = document.getElementById('backFolderBtn');
         const librarySearchInput = document.getElementById('librarySearchInput');
@@ -729,9 +875,12 @@
         const linkModal = document.getElementById('linkModal');
         const noteModal = document.getElementById('noteModal');
         const folderModal = document.getElementById('folderModal');
+        const collectionModal = document.getElementById('collectionModal');
+
         const linkForm = document.getElementById('linkForm');
         const noteForm = document.getElementById('noteForm');
         const folderForm = document.getElementById('folderForm');
+        const collectionForm = document.getElementById('collectionForm');
 
         // Helper UUID generator
         function generateUUID() {
@@ -757,11 +906,44 @@
         function extractDomain(urlStr) {
             if (!urlStr) return '';
             try {
-                const u = new URL(urlStr);
+                const target = urlStr.includes('://') ? urlStr : `https://${urlStr}`;
+                const u = new URL(target);
                 return u.hostname.replace(/^www\./, '');
             } catch {
-                return urlStr;
+                return String(urlStr).replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
             }
+        }
+
+        function getSafeFavicon(item, domain) {
+            let fav = item.favicon;
+            if (fav && typeof fav === 'string') {
+                fav = fav.trim();
+                // Filter out broken / legacy fallback paths that 404
+                if (fav === '' || 
+                    fav.includes('assets/favicon.svg') || 
+                    fav.endsWith('favicon.svg') || 
+                    fav.includes('tabsome.github.io/assets') ||
+                    fav === 'null' || 
+                    fav === 'undefined') {
+                    fav = null;
+                }
+            } else {
+                fav = null;
+            }
+            if (!fav && domain && domain !== 'localhost' && !domain.startsWith('127.0.0.1')) {
+                return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`;
+            }
+            return fav || null;
+        }
+
+        function resolveCollectionIcon(icon) {
+            if (!icon) return 'fa-folder';
+            const iconClean = String(icon).toLowerCase().replace(/^fa-/, '').trim();
+            const validIcons = ['folder', 'bookmark', 'rocket', 'book', 'star', 'heart', 'compass', 'code', 'globe', 'lightbulb', 'layer-group'];
+            if (validIcons.includes(iconClean)) {
+                return `fa-${iconClean}`;
+            }
+            return 'fa-folder';
         }
 
         const GRADIENT_PALETTES = [
@@ -796,38 +978,35 @@
         }
 
         function getItemThumbnail(item) {
-            if (item.image && typeof item.image === 'string' && item.image.trim() !== '') {
-                return item.image.trim();
-            }
-            if (item.thumbnail && typeof item.thumbnail === 'string' && item.thumbnail.trim() !== '') {
-                return item.thumbnail.trim();
-            }
-            if (item.preview && typeof item.preview === 'string' && item.preview.trim() !== '') {
-                return item.preview.trim();
-            }
-            if (item.url) {
-                try {
-                    const parsed = new URL(item.url);
-                    if (parsed.protocol.startsWith('http')) {
-                        return `https://image.thum.io/get/width/600/crop/400/${encodeURI(item.url)}`;
+            const candidates = [item.image, item.thumbnail, item.preview];
+            for (const cand of candidates) {
+                if (cand && typeof cand === 'string') {
+                    const trimmed = cand.trim();
+                    if (trimmed !== '' &&
+                        !trimmed.includes('assets/favicon.svg') &&
+                        !trimmed.includes('image.thum.io') &&
+                        !trimmed.startsWith('javascript:')) {
+                        return trimmed;
                     }
-                } catch (e) {}
+                }
             }
             return null;
         }
 
         // =========================================================================
-        // LOCAL PERSISTENCE & RECOVERY
+        // LOCAL PERSISTENCE
         // =========================================================================
         function loadLocalCachedData() {
             try {
-                storedCursor = JSON.parse(localStorage.getItem(STORAGE_KEY_CURSOR) || 'null');
                 const cached = JSON.parse(localStorage.getItem(STORAGE_KEY_DATA) || '{}');
                 if (cached.collections && Array.isArray(cached.collections)) collectionsList = cached.collections;
                 if (cached.folders && Array.isArray(cached.folders)) allFolders = cached.folders;
                 if (cached.items && Array.isArray(cached.items)) allItems = cached.items;
                 if (cached.tags && Array.isArray(cached.tags)) allTags = cached.tags;
                 if (cached.activeCollectionId) activeCollectionId = cached.activeCollectionId;
+                if (activeCollectionId && collectionsList.length > 0) {
+                    activeCollectionData = collectionsList.find(c => c.id === activeCollectionId) || null;
+                }
             } catch (err) {
                 console.warn('Failed to load local cached library data', err);
             }
@@ -835,7 +1014,6 @@
 
         function saveLocalCachedData() {
             try {
-                localStorage.setItem(STORAGE_KEY_CURSOR, JSON.stringify(storedCursor));
                 localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify({
                     collections: collectionsList,
                     folders: allFolders,
@@ -849,153 +1027,167 @@
         }
 
         // =========================================================================
-        // SYNC ENGINE (/api/v3/users/me/library/sync)
+        // REST API DATA CONTROLLER
         // =========================================================================
-        async function performLibrarySync(localChanges = null) {
-            if (!currentUser) return;
-            if (isSyncing) return;
 
-            isSyncing = true;
-            syncIcon.classList.add('fa-spin');
-            syncStatusText.textContent = 'Syncing...';
-
+        async function fetchUserCollections() {
             try {
-                const payload = {
-                    cursor: storedCursor,
-                    changes: localChanges || {
-                        upserts: { collections: [], folders: [], items: [], tags: [] },
-                        deletes: { collection_ids: [], folder_ids: [], item_ids: [], tag_ids: [] }
-                    }
-                };
-
-                // Single Bidirectional Sync Request
-                const res = await TabsomeAuth.apiFetch(`${API_BASE_URL}/api/v3/users/me/library/sync`, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-
-                if (res.status === 401) {
-                    console.warn('Sync received 401 Unauthorized');
-                    return;
-                }
-
-                if (res.ok) {
-                    const result = await res.json();
-                    if (result.success && result.data) {
-                        const { nextCursor, applied, updates, deleted } = result.data;
-
-                        if (typeof nextCursor !== 'undefined' && nextCursor !== null) {
-                            storedCursor = nextCursor;
-                        }
-
-                        // Apply remote updates & applied snapshots
-                        const incomingUpserts = [
-                            ...(applied?.collections || []),
-                            ...(updates?.collections || [])
-                        ];
-                        incomingUpserts.forEach(col => {
-                            const idx = collectionsList.findIndex(c => c.id === col.id);
-                            if (idx >= 0) collectionsList[idx] = col;
-                            else collectionsList.push(col);
-                        });
-
-                        const incomingFolders = [
-                            ...(applied?.folders || []),
-                            ...(updates?.folders || [])
-                        ];
-                        incomingFolders.forEach(fol => {
-                            const idx = allFolders.findIndex(f => f.id === fol.id);
-                            if (idx >= 0) allFolders[idx] = fol;
-                            else allFolders.push(fol);
-                        });
-
-                        const incomingItems = [
-                            ...(applied?.items || []),
-                            ...(updates?.items || [])
-                        ];
-                        incomingItems.forEach(it => {
-                            const idx = allItems.findIndex(i => i.id === it.id);
-                            if (idx >= 0) allItems[idx] = it;
-                            else allItems.push(it);
-                        });
-
-                        // Process deletions
-                        if (deleted?.collection_ids) {
-                            collectionsList = collectionsList.filter(c => !deleted.collection_ids.includes(c.id));
-                        }
-                        if (deleted?.folder_ids) {
-                            allFolders = allFolders.filter(f => !deleted.folder_ids.includes(f.id));
-                        }
-                        if (deleted?.item_ids) {
-                            allItems = allItems.filter(i => !deleted.item_ids.includes(i.id));
-                        }
-
-                        saveLocalCachedData();
-                    }
-                } else if (res.status === 404) {
-                    // Fallback to REST Collections API if Sync endpoint is in fallback mode
-                    await fallbackFetchCollections();
-                }
-
-                // Update active collection if needed
-                if (!activeCollectionId && collectionsList.length > 0) {
-                    activeCollectionId = collectionsList[0].id;
-                }
-                activeCollectionData = collectionsList.find(c => c.id === activeCollectionId) || null;
-
-                renderCollectionSelector();
-                renderCurrentView();
-
-                syncStatusText.textContent = 'Synced';
-            } catch (err) {
-                console.error('Library Sync Error:', err);
-                syncStatusText.textContent = 'Offline';
-            } finally {
-                isSyncing = false;
-                syncIcon.classList.remove('fa-spin');
-                setTimeout(() => {
-                    if (syncStatusText.textContent === 'Synced') {
-                        syncStatusText.textContent = 'Sync';
-                    }
-                }, 3000);
-            }
-        }
-
-        // Fallback REST fetcher
-        async function fallbackFetchCollections() {
-            try {
-                const res = await TabsomeAuth.apiFetch(`${API_BASE_URL}/api/v3/users/me/library/collections`);
+                const res = await TabsomeAuth.apiFetch(`${API_BASE_URL}/api/v3/users/me/library/collections?includeStats=true`);
                 if (res.ok) {
                     const result = await res.json();
                     if (result.success && Array.isArray(result.data)) {
                         collectionsList = result.data;
-                        if (!activeCollectionId && collectionsList.length > 0) {
-                            activeCollectionId = collectionsList[0].id;
-                        }
-                        if (activeCollectionId) {
-                            await fallbackFetchCollectionDetails(activeCollectionId);
-                        }
+                        renderCollectionSelector();
+                        return collectionsList;
                     }
                 }
             } catch (err) {
-                console.warn('Fallback collections fetch failed', err);
+                console.warn('Failed to fetch user collections:', err);
             }
+            return [];
         }
 
-        async function fallbackFetchCollectionDetails(colId) {
+        async function fetchDefaultCollection() {
+            try {
+                const res = await TabsomeAuth.apiFetch(`${API_BASE_URL}/api/v3/users/me/library/collections/default`);
+                if (res.ok) {
+                    const result = await res.json();
+                    if (result.success && result.data) {
+                        applyCollectionData(result.data);
+                        return result.data;
+                    }
+                } else {
+                    console.warn('Default collection endpoint responded with status:', res.status);
+                }
+            } catch (err) {
+                console.error('Failed to fetch default collection:', err);
+            }
+            return null;
+        }
+
+        async function fetchCollectionDetails(colId) {
+            if (!colId) return null;
             try {
                 const res = await TabsomeAuth.apiFetch(`${API_BASE_URL}/api/v3/users/me/library/collections/${colId}`);
                 if (res.ok) {
                     const result = await res.json();
                     if (result.success && result.data) {
-                        activeCollectionData = result.data.collection || result.data;
-                        if (Array.isArray(result.data.folders)) allFolders = result.data.folders;
-                        if (Array.isArray(result.data.items)) allItems = result.data.items;
-                        saveLocalCachedData();
+                        applyCollectionData(result.data, colId);
+                        return result.data;
                     }
                 }
             } catch (err) {
-                console.warn('Fallback collection details fetch failed', err);
+                console.error(`Failed to fetch collection details for ${colId}:`, err);
+            }
+            return null;
+        }
+
+        function applyCollectionData(data, requestedId = null) {
+            const col = data.collection || data;
+            activeCollectionData = col;
+            activeCollectionId = col.id || requestedId || (collectionsList[0]?.id || null);
+
+            if (activeCollectionId) {
+                const existingIdx = collectionsList.findIndex(c => c.id === activeCollectionId);
+                if (existingIdx >= 0) {
+                    collectionsList[existingIdx] = { ...collectionsList[existingIdx], ...col };
+                } else if (col.id) {
+                    collectionsList.push(col);
+                }
+            }
+
+            allFolders = Array.isArray(data.folders) ? data.folders : [];
+            allItems = Array.isArray(data.items) ? data.items : [];
+
+            folderHistory = [{ id: null, name: activeCollectionData?.name || 'My Library' }];
+            currentFolderId = null;
+
+            saveLocalCachedData();
+            renderCollectionSelector();
+            renderCurrentView();
+        }
+
+        async function loadLibrary(preferredColId = null) {
+            if (!currentUser) return;
+            loadingSkeleton.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            libraryContainer.classList.add('hidden');
+
+            try {
+                // 1. Fetch user collections listing with metadata
+                await fetchUserCollections();
+
+                // 2. Fetch active/default collection
+                const targetId = preferredColId || activeCollectionId;
+                const targetInList = targetId ? collectionsList.find(c => c.id === targetId) : null;
+
+                if (targetInList && !targetInList.isDefault) {
+                    const loaded = await fetchCollectionDetails(targetId);
+                    if (!loaded) {
+                        await fetchDefaultCollection();
+                    }
+                } else {
+                    // Standard: always fetch default collection on load
+                    await fetchDefaultCollection();
+                }
+            } catch (err) {
+                console.error('Error initializing library:', err);
+            } finally {
+                loadingSkeleton.classList.add('hidden');
+                renderCollectionSelector();
+                renderCurrentView();
+            }
+        }
+
+        async function refreshLibraryData() {
+            if (!currentUser || isRefreshing) return;
+            isRefreshing = true;
+            refreshIcon.classList.add('fa-spin');
+            refreshStatusText.textContent = 'Refreshing...';
+
+            try {
+                await fetchUserCollections();
+                const activeCol = collectionsList.find(c => c.id === activeCollectionId);
+                if (activeCol && !activeCol.isDefault) {
+                    await fetchCollectionDetails(activeCollectionId);
+                } else {
+                    await fetchDefaultCollection();
+                }
+                refreshStatusText.textContent = 'Refreshed';
+            } catch (err) {
+                console.error('Refresh error:', err);
+                refreshStatusText.textContent = 'Failed';
+            } finally {
+                isRefreshing = false;
+                refreshIcon.classList.remove('fa-spin');
+                setTimeout(() => {
+                    refreshStatusText.textContent = 'Refresh';
+                }, 2000);
+            }
+        }
+
+        async function switchCollection(colId) {
+            if (!colId || colId === activeCollectionId) {
+                collectionDropdownMenu.classList.add('hidden');
+                return;
+            }
+            collectionDropdownMenu.classList.add('hidden');
+            activeCollectionId = colId;
+            loadingSkeleton.classList.remove('hidden');
+            libraryContainer.classList.add('hidden');
+            emptyState.classList.add('hidden');
+
+            try {
+                const selectedCol = collectionsList.find(c => c.id === colId);
+                if (selectedCol?.isDefault) {
+                    await fetchDefaultCollection();
+                } else {
+                    await fetchCollectionDetails(colId);
+                }
+            } finally {
+                loadingSkeleton.classList.add('hidden');
+                renderCollectionSelector();
+                renderCurrentView();
             }
         }
 
@@ -1003,17 +1195,99 @@
         // UI RENDERING & FILTERING
         // =========================================================================
         function renderCollectionSelector() {
-            if (collectionsList.length > 1) {
-                collectionSelect.innerHTML = collectionsList.map(c =>
-                    `<option value="${c.id}" ${c.id === activeCollectionId ? 'selected' : ''}>${escapeHtml(c.name || 'Default Collection')}</option>`
-                ).join('');
-                collectionSelectorWrapper.classList.remove('hidden');
-                activeCollectionBadge.classList.add('hidden');
-            } else {
-                collectionSelectorWrapper.classList.add('hidden');
-                activeCollectionBadge.textContent = 'Default Collection';
+            if (!collectionsList || collectionsList.length === 0) {
+                const fallbackName = activeCollectionData?.name || 'My Library';
+                selectedCollectionName.textContent = fallbackName;
+                selectedCollectionDefaultBadge.classList.toggle('hidden', !activeCollectionData?.isDefault);
+                collectionCountBadge.textContent = activeCollectionData ? '1' : '0';
+                collectionsListContainer.innerHTML = `
+                    <div class="px-3 py-4 text-center text-xs text-gray-400">
+                        No additional collections found.
+                    </div>
+                `;
+                return;
+            }
+
+            collectionCountBadge.textContent = collectionsList.length;
+
+            let activeCol = collectionsList.find(c => c.id === activeCollectionId) || activeCollectionData;
+            if (!activeCol && collectionsList.length > 0) {
+                activeCol = collectionsList.find(c => c.isDefault) || collectionsList[0];
+                activeCollectionId = activeCol.id;
+            }
+
+            const currentName = activeCol?.name || 'My Library';
+            const isDefault = Boolean(activeCol?.isDefault);
+            const currentColor = activeCol?.color || '#ec4899';
+            const currentIcon = resolveCollectionIcon(activeCol?.icon);
+
+            selectedCollectionName.textContent = currentName;
+            selectedCollectionName.title = currentName;
+            selectedCollectionDefaultBadge.classList.toggle('hidden', !isDefault);
+
+            selectedCollectionIcon.className = `fas ${currentIcon}`;
+            selectedCollectionIconWrapper.style.backgroundColor = `${currentColor}25`;
+            selectedCollectionIconWrapper.style.borderColor = `${currentColor}40`;
+            selectedCollectionIconWrapper.style.color = currentColor;
+
+            // Update badge on title row
+            if (activeCollectionBadge) {
+                activeCollectionBadge.innerHTML = `
+                    <span class="inline-flex items-center gap-1.5">
+                        <i class="fas ${currentIcon} text-[11px]" style="color: ${currentColor}"></i>
+                        <span>${escapeHtml(currentName)}</span>
+                        ${isDefault ? '<span class="text-[10px] uppercase font-bold opacity-80">(Default)</span>' : ''}
+                    </span>
+                `;
                 activeCollectionBadge.classList.remove('hidden');
             }
+
+            // Render list of collection cards inside dropdown menu
+            collectionsListContainer.innerHTML = collectionsList.map(col => {
+                const isSelected = col.id === activeCollectionId;
+                const iconClass = resolveCollectionIcon(col.icon);
+                const colColor = col.color || '#ec4899';
+                const statsSummary = [
+                    `${col.linksCount || 0} links`,
+                    `${col.notesCount || 0} notes`,
+                    `${col.foldersCount || 0} folders`
+                ].join(' · ');
+
+                return `
+                    <div class="collection-item-row group flex items-start justify-between gap-3 p-2.5 rounded-xl transition cursor-pointer ${
+                        isSelected
+                            ? 'bg-white/15 border border-white/20'
+                            : 'hover:bg-white/10 border border-transparent'
+                    }" data-collection-id="${col.id}">
+                        <div class="flex items-start gap-2.5 min-w-0 flex-1">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs flex-shrink-0 mt-0.5 shadow-sm"
+                                style="background-color: ${colColor}25; border: 1px solid ${colColor}45; color: ${colColor};">
+                                <i class="fas ${iconClass}"></i>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span class="text-xs font-bold text-white truncate group-hover:text-pink-300 transition">${escapeHtml(col.name)}</span>
+                                    ${col.isDefault ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase bg-pink-500/30 text-pink-300 border border-pink-500/40">DEFAULT</span>` : ''}
+                                    ${col.isSystem ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase bg-purple-500/30 text-purple-300 border border-purple-500/40">SYSTEM</span>` : ''}
+                                </div>
+                                ${col.description ? `<p class="text-[11px] text-gray-300 truncate mt-0.5">${escapeHtml(col.description)}</p>` : ''}
+                                <div class="flex items-center gap-2 mt-1 text-[10px] text-gray-400 font-medium">
+                                    <span>${statsSummary}</span>
+                                </div>
+                                <div class="mt-1 flex items-center gap-1 text-[9px] font-mono text-gray-400 opacity-70 group-hover:opacity-100 transition">
+                                    <span class="truncate max-w-[140px]" title="${col.id}">ID: ${col.id}</span>
+                                    <button type="button" class="copy-col-id-btn p-0.5 hover:text-white transition cursor-pointer" data-id="${col.id}" title="Copy Collection ID">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center pt-1">
+                            ${isSelected ? `<i class="fas fa-check text-pink-400 text-xs flex-shrink-0"></i>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function renderBreadcrumbs() {
@@ -1031,14 +1305,12 @@
             }).join('');
 
             backFolderBtn.classList.toggle('hidden', folderHistory.length <= 1);
-            // Smoothly keep current active folder in view
             setTimeout(() => {
                 breadcrumbsContainer.scrollLeft = breadcrumbsContainer.scrollWidth;
             }, 0);
         }
 
         function renderTagsBar() {
-            // Aggregate all tags from current active items
             const tagCounts = {};
             allItems.forEach(item => {
                 if (Array.isArray(item.tags)) {
@@ -1102,7 +1374,7 @@
             // Apply Tag Filter
             if (activeTagFilter) {
                 currentItems = currentItems.filter(item => Array.isArray(item.tags) && item.tags.includes(activeTagFilter));
-                currentFolders = []; // Tags apply to items
+                currentFolders = [];
             }
 
             let displayFolders = currentFolders;
@@ -1120,8 +1392,9 @@
                     emptyTitle.textContent = 'This folder is empty';
                     emptyDesc.textContent = 'There are no links, notes, or subfolders inside this folder yet.';
                 } else {
-                    emptyTitle.textContent = 'Your library is empty';
-                    emptyDesc.textContent = 'Add links, notes, and folders using the Tabsome extension.';
+                    const colName = activeCollectionData?.name || 'Your library';
+                    emptyTitle.textContent = `${escapeHtml(colName)} is empty`;
+                    emptyDesc.textContent = 'Add links, notes, and folders using the buttons above.';
                 }
                 return;
             }
@@ -1129,7 +1402,6 @@
             emptyState.classList.add('hidden');
             libraryContainer.classList.remove('hidden');
 
-            // Apply Grid or List styling
             if (viewMode === 'grid') {
                 libraryContainer.className = 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5';
             } else {
@@ -1146,7 +1418,7 @@
                         <div class="library-item-card folder-card p-4 sm:p-5 flex flex-col justify-between group cursor-pointer" data-folder-id="${folder.id}" data-folder-name="${escapeHtml(folder.name)}">
                             <div class="flex items-start justify-between gap-3">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-xl bg-pink-500/20 border border-pink-400/30 flex items-center justify-center text-pink-300 text-lg group-hover:scale-105 transition">
+                                    <div class="w-10 h-10 rounded-xl bg-pink-500/20 border border-pink-400/30 flex items-center justify-center text-pink-300 text-lg group-hover:scale-105 transition shadow-sm">
                                         <i class="fas fa-folder"></i>
                                     </div>
                                     <div>
@@ -1154,7 +1426,7 @@
                                         <span class="text-[11px] text-gray-400">${folderItemCount} item${folderItemCount === 1 ? '' : 's'}</span>
                                     </div>
                                 </div>
-                                <button class="delete-folder-btn text-gray-400 hover:text-rose-400 text-xs p-1.5 transition opacity-0 group-hover:opacity-100" data-id="${folder.id}" title="Delete folder">
+                                <button class="delete-folder-btn text-gray-400 hover:text-rose-400 text-xs p-1.5 transition opacity-0 group-hover:opacity-100 cursor-pointer" data-id="${folder.id}" title="Delete folder">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </div>
@@ -1168,7 +1440,7 @@
                     html += `
                         <div class="library-item-card folder-card p-3 sm:p-4 flex items-center justify-between gap-4 group cursor-pointer" data-folder-id="${folder.id}" data-folder-name="${escapeHtml(folder.name)}">
                             <div class="flex items-center gap-3.5 min-w-0">
-                                <div class="w-12 h-12 rounded-xl bg-pink-500/20 border border-pink-400/30 flex items-center justify-center text-pink-300 text-lg group-hover:scale-105 transition flex-shrink-0">
+                                <div class="w-12 h-12 rounded-xl bg-pink-500/20 border border-pink-400/30 flex items-center justify-center text-pink-300 text-lg group-hover:scale-105 transition flex-shrink-0 shadow-sm">
                                     <i class="fas fa-folder"></i>
                                 </div>
                                 <div>
@@ -1179,7 +1451,7 @@
                             <div class="flex items-center gap-3">
                                 <span class="text-xs text-pink-300 font-semibold hidden sm:inline">Open Folder</span>
                                 <i class="fas fa-chevron-right text-xs text-pink-300"></i>
-                                <button class="delete-folder-btn text-gray-400 hover:text-rose-400 text-xs p-1.5 transition opacity-0 group-hover:opacity-100 ml-2" data-id="${folder.id}" title="Delete folder">
+                                <button class="delete-folder-btn text-gray-400 hover:text-rose-400 text-xs p-1.5 transition opacity-0 group-hover:opacity-100 ml-2 cursor-pointer" data-id="${folder.id}" title="Delete folder">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </div>
@@ -1191,15 +1463,17 @@
             // 2. Render Items (Links & Notes)
             displayItems.forEach(item => {
                 if (item.type === 'note') {
-                    // Note Card
-                    const noteSnippet = typeof item.content === 'string' ? item.content : (Array.isArray(item.content) ? (item.content[0]?.html || 'Note text') : 'Empty note');
+                    const noteSnippet = typeof item.content === 'string'
+                        ? item.content
+                        : (Array.isArray(item.content) ? (item.content[0]?.html || 'Note text') : 'Empty note');
+
                     if (viewMode === 'grid') {
                         html += `
                             <div class="library-item-card note-card p-4 sm:p-5 flex flex-col justify-between group h-full">
                                 <div>
                                     <div class="flex items-start justify-between gap-2 mb-2">
                                         <div class="flex items-center gap-2">
-                                            <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center text-xs">
+                                            <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center text-xs shadow-sm">
                                                 <i class="fas fa-sticky-note"></i>
                                             </div>
                                             <h4 class="text-sm font-bold text-white truncate max-w-[160px]">${escapeHtml(item.title || 'Untitled Note')}</h4>
@@ -1225,7 +1499,7 @@
                         html += `
                             <div class="library-item-card note-card p-3 sm:p-4 flex items-center justify-between gap-4 group">
                                 <div class="flex items-center gap-3.5 min-w-0 flex-1">
-                                    <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/30 flex items-center justify-center text-lg flex-shrink-0">
+                                    <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/30 flex items-center justify-center text-lg flex-shrink-0 shadow-sm">
                                         <i class="fas fa-sticky-note"></i>
                                     </div>
                                     <div class="min-w-0 flex-1">
@@ -1246,9 +1520,8 @@
                         `;
                     }
                 } else {
-                    // Link Card with Thumbnail
                     const domain = extractDomain(item.url);
-                    const faviconUrl = item.favicon || `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+                    const faviconUrl = getSafeFavicon(item, domain);
                     const thumbnailUrl = getItemThumbnail(item);
                     const gradientClass = getDeterministicGradient(item.title || domain || item.url);
                     const initials = getInitials(item.title || domain);
@@ -1257,37 +1530,33 @@
                         html += `
                             <div class="library-item-card flex flex-col justify-between group h-full overflow-hidden">
                                 <div>
-                                    <!-- Card Thumbnail Banner -->
                                     <div class="relative w-full aspect-[16/10] overflow-hidden bg-slate-950/60 bg-gradient-to-tr ${gradientClass} flex items-center justify-center">
                                         ${thumbnailUrl ? `
-                                            <img src="${escapeHtml(thumbnailUrl)}" alt="${escapeHtml(item.title || domain)}"
-                                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                                loading="lazy"
-                                                onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" />
-                                            <div class="hidden w-full h-full absolute inset-0 flex items-center justify-center">
-                                                <span class="text-2xl font-black text-white/90 drop-shadow">${initials}</span>
-                                            </div>
-                                        ` : `
-                                            <span class="text-2xl font-black text-white/90 drop-shadow">${initials}</span>
-                                        `}
-                                        <!-- Bottom Gradient Shade -->
+                                             <img src="${escapeHtml(thumbnailUrl)}" alt="${escapeHtml(item.title || domain)}"
+                                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                 loading="lazy"
+                                                 onerror="this.onerror=null; this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.classList.remove('hidden');" />
+                                             <div class="hidden w-full h-full absolute inset-0 flex items-center justify-center">
+                                                 <span class="text-2xl font-black text-white/90 drop-shadow">${initials}</span>
+                                             </div>
+                                         ` : `
+                                             <span class="text-2xl font-black text-white/90 drop-shadow">${initials}</span>
+                                         `}
                                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-transparent to-transparent pointer-events-none"></div>
 
-                                        <!-- Domain & Favicon Pill on bottom-left -->
                                         <div class="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between pointer-events-none">
                                             <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-black/65 backdrop-blur-md border border-white/15 text-[10px] text-white/90 font-mono truncate max-w-[75%] shadow-sm">
-                                                <img src="${faviconUrl}" alt="" class="w-3.5 h-3.5 rounded object-contain flex-shrink-0" onerror="this.src='assets/favicon.svg'" />
+                                                ${faviconUrl ? `<img src="${escapeHtml(faviconUrl)}" alt="" class="w-3.5 h-3.5 rounded object-contain flex-shrink-0" onerror="this.onerror=null; this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.classList.remove('hidden');" />` : ''}
+                                                <i class="fas fa-globe text-[10px] text-gray-300 flex-shrink-0 ${faviconUrl ? 'hidden' : ''}"></i>
                                                 <span class="truncate">${escapeHtml(domain)}</span>
                                             </div>
                                         </div>
 
-                                        <!-- Delete Button Floating on Hover -->
                                         <button class="delete-item-btn absolute top-2 right-2 w-7 h-7 rounded-lg bg-black/60 hover:bg-rose-500 text-white/80 hover:text-white backdrop-blur-md border border-white/15 flex items-center justify-center text-xs transition opacity-0 group-hover:opacity-100 cursor-pointer shadow-md" data-id="${item.id}" title="Delete link">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </div>
 
-                                    <!-- Card Body -->
                                     <div class="p-4">
                                         <h4 class="text-sm font-bold text-white group-hover:text-pink-300 transition line-clamp-2 leading-snug mb-1.5" title="${escapeHtml(item.title || domain || 'Untitled Link')}">
                                             ${escapeHtml(item.title || domain || 'Untitled Link')}
@@ -1297,7 +1566,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Card Footer -->
                                 <div class="px-4 pb-3.5 pt-2 border-t border-white/10 flex items-center justify-between text-[11px]">
                                     <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" class="text-pink-300 hover:text-white font-semibold flex items-center gap-1.5 transition">
                                         <span>Visit Site</span>
@@ -1310,15 +1578,13 @@
                             </div>
                         `;
                     } else {
-                        // List View Mode
                         html += `
                             <div class="library-item-card p-3 sm:p-4 flex items-center justify-between gap-4 group">
                                 <div class="flex items-center gap-3.5 min-w-0 flex-1">
-                                    <!-- Compact Thumbnail -->
-                                    <div class="w-16 h-12 sm:w-20 sm:h-14 rounded-xl overflow-hidden bg-slate-950/60 bg-gradient-to-tr ${gradientClass} flex-shrink-0 relative flex items-center justify-center border border-white/10">
+                                    <div class="w-16 h-12 sm:w-20 sm:h-14 rounded-xl overflow-hidden bg-slate-950/60 bg-gradient-to-tr ${gradientClass} flex-shrink-0 relative flex items-center justify-center border border-white/10 shadow-sm">
                                         ${thumbnailUrl ? `
                                             <img src="${escapeHtml(thumbnailUrl)}" alt="" class="w-full h-full object-cover" loading="lazy"
-                                                onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" />
+                                                onerror="this.onerror=null; this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.classList.remove('hidden');" />
                                             <div class="hidden w-full h-full absolute inset-0 flex items-center justify-center">
                                                 <span class="text-xs font-black text-white">${initials}</span>
                                             </div>
@@ -1329,7 +1595,10 @@
 
                                     <div class="min-w-0 flex-1">
                                         <div class="flex items-center gap-2 mb-0.5">
-                                            <img src="${faviconUrl}" alt="" class="w-4 h-4 rounded object-cover flex-shrink-0 bg-slate-800" onerror="this.src='assets/favicon.svg'" />
+                                            ${faviconUrl ? `<img src="${escapeHtml(faviconUrl)}" alt="" class="w-4 h-4 rounded object-cover flex-shrink-0 bg-slate-800" onerror="this.onerror=null; this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.classList.remove('hidden');" />` : ''}
+                                            <div class="w-4 h-4 rounded flex items-center justify-center bg-white/10 text-gray-300 flex-shrink-0 ${faviconUrl ? 'hidden' : ''}">
+                                                <i class="fas fa-globe text-[10px]"></i>
+                                            </div>
                                             <h4 class="text-sm font-bold text-white group-hover:text-pink-300 transition truncate">${escapeHtml(item.title || domain || 'Untitled Link')}</h4>
                                         </div>
                                         <p class="text-[11px] text-pink-300/80 truncate font-mono">${escapeHtml(domain)}</p>
@@ -1369,112 +1638,226 @@
         }
 
         // =========================================================================
-        // ITEM & FOLDER MUTATIONS (OPTIMISTIC + SYNC)
+        // ITEM, FOLDER & COLLECTION REST MUTATIONS
         // =========================================================================
-        async function createNewLink(url, title, description, tags, image = null) {
-            const domain = extractDomain(url);
-            const newItem = {
-                id: generateUUID(),
-                type: 'link',
-                collectionId: activeCollectionId,
-                parentId: currentFolderId,
-                sortOrder: allItems.length,
-                url,
-                title,
+
+        async function createNewCollection(name, description, color, icon, isDefault) {
+            const payload = {
+                name,
                 description: description || null,
-                image: image || null,
-                favicon: `https://www.google.com/s2/favicons?domain=${domain}&sz=64`,
-                tags: tags ? tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean) : [],
-                createdAt: new Date().toISOString()
+                color: color || '#ec4899',
+                icon: icon || 'folder',
+                isDefault: Boolean(isDefault)
             };
 
-            allItems.unshift(newItem);
+            try {
+                const res = await TabsomeAuth.apiFetch(`${API_BASE_URL}/api/v3/users/me/library/collections`, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    const result = await res.json();
+                    if (result.success && result.data) {
+                        await fetchUserCollections();
+                        await switchCollection(result.data.id);
+                    }
+                } else {
+                    console.error('Failed to create collection', await res.text());
+                }
+            } catch (err) {
+                console.error('Error creating collection:', err);
+            }
+        }
+
+        async function createNewLink(url, title, description, tags, image = null) {
+            if (!activeCollectionId) {
+                alert('Please select or wait for a collection to load.');
+                return;
+            }
+            const domain = extractDomain(url);
+            const tagsArray = tags ? tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean) : [];
+            const favicon = domain ? `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64` : null;
+
+            const payload = {
+                type: 'link',
+                parentId: currentFolderId || null,
+                sortOrder: allItems.length,
+                url,
+                title: title || domain,
+                description: description || null,
+                image: image || null,
+                favicon,
+                tags: tagsArray
+            };
+
+            const tempId = generateUUID();
+            const optimisticItem = { ...payload, id: tempId, collectionId: activeCollectionId, createdAt: new Date().toISOString() };
+            allItems.unshift(optimisticItem);
             saveLocalCachedData();
             renderCurrentView();
 
-            // Sync upsert to server
-            await performLibrarySync({
-                upserts: { items: [newItem], collections: [], folders: [], tags: [] },
-                deletes: { item_ids: [], folder_ids: [], collection_ids: [], tag_ids: [] }
-            });
+            try {
+                const res = await TabsomeAuth.apiFetch(`${API_BASE_URL}/api/v3/users/me/library/collections/${activeCollectionId}/items`, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    const result = await res.json();
+                    if (result.success && result.data) {
+                        const idx = allItems.findIndex(i => i.id === tempId);
+                        if (idx >= 0) allItems[idx] = result.data;
+                        saveLocalCachedData();
+                        renderCurrentView();
+                    }
+                } else {
+                    console.error('Failed to create link on server', await res.text());
+                }
+            } catch (err) {
+                console.error('Error creating link:', err);
+            }
         }
 
         async function createNewNote(title, content, color, tags) {
-            const newItem = {
-                id: generateUUID(),
+            if (!activeCollectionId) {
+                alert('Please select or wait for a collection to load.');
+                return;
+            }
+            const tagsArray = tags ? tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean) : [];
+            const payload = {
                 type: 'note',
-                collectionId: activeCollectionId,
-                parentId: currentFolderId,
+                parentId: currentFolderId || null,
                 sortOrder: allItems.length,
-                title,
-                content: content,
+                title: title || 'Untitled Note',
+                content: [{ type: 'p', html: content }],
                 color: color || 'default',
-                tags: tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean),
-                createdAt: new Date().toISOString()
+                tags: tagsArray
             };
 
-            allItems.unshift(newItem);
+            const tempId = generateUUID();
+            const optimisticItem = { ...payload, id: tempId, collectionId: activeCollectionId, createdAt: new Date().toISOString() };
+            allItems.unshift(optimisticItem);
             saveLocalCachedData();
             renderCurrentView();
 
-            // Sync upsert to server
-            await performLibrarySync({
-                upserts: { items: [newItem], collections: [], folders: [], tags: [] },
-                deletes: { item_ids: [], folder_ids: [], collection_ids: [], tag_ids: [] }
-            });
+            try {
+                const res = await TabsomeAuth.apiFetch(`${API_BASE_URL}/api/v3/users/me/library/collections/${activeCollectionId}/items`, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    const result = await res.json();
+                    if (result.success && result.data) {
+                        const idx = allItems.findIndex(i => i.id === tempId);
+                        if (idx >= 0) allItems[idx] = result.data;
+                        saveLocalCachedData();
+                        renderCurrentView();
+                    }
+                } else {
+                    console.error('Failed to create note on server', await res.text());
+                }
+            } catch (err) {
+                console.error('Error creating note:', err);
+            }
         }
 
         async function createNewFolder(name) {
-            const newFolder = {
-                id: generateUUID(),
+            if (!activeCollectionId) {
+                alert('Please select or wait for a collection to load.');
+                return;
+            }
+            const payload = {
                 name,
-                collectionId: activeCollectionId,
-                parentId: currentFolderId,
-                sortOrder: allFolders.length,
-                createdAt: new Date().toISOString()
+                parentId: currentFolderId || null,
+                sortOrder: allFolders.length
             };
 
-            allFolders.unshift(newFolder);
+            const tempId = generateUUID();
+            const optimisticFolder = { ...payload, id: tempId, collectionId: activeCollectionId, createdAt: new Date().toISOString() };
+            allFolders.unshift(optimisticFolder);
             saveLocalCachedData();
             renderCurrentView();
 
-            // Sync folder upsert to server
-            await performLibrarySync({
-                upserts: { folders: [newFolder], collections: [], items: [], tags: [] },
-                deletes: { item_ids: [], folder_ids: [], collection_ids: [], tag_ids: [] }
-            });
+            try {
+                const res = await TabsomeAuth.apiFetch(`${API_BASE_URL}/api/v3/users/me/library/collections/${activeCollectionId}/folders`, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    const result = await res.json();
+                    if (result.success && result.data) {
+                        const idx = allFolders.findIndex(f => f.id === tempId);
+                        if (idx >= 0) allFolders[idx] = result.data;
+                        saveLocalCachedData();
+                        renderCurrentView();
+                    }
+                } else {
+                    console.error('Failed to create folder on server', await res.text());
+                }
+            } catch (err) {
+                console.error('Error creating folder:', err);
+            }
         }
 
         async function deleteItem(itemId) {
             if (!confirm('Are you sure you want to delete this item?')) return;
+            const previousItems = [...allItems];
             allItems = allItems.filter(i => i.id !== itemId);
             saveLocalCachedData();
             renderCurrentView();
 
-            await performLibrarySync({
-                upserts: { collections: [], folders: [], items: [], tags: [] },
-                deletes: { item_ids: [itemId], folder_ids: [], collection_ids: [], tag_ids: [] }
-            });
+            try {
+                const res = await TabsomeAuth.apiFetch(`${API_BASE_URL}/api/v3/users/me/library/collections/${activeCollectionId}/items/${itemId}`, {
+                    method: 'DELETE'
+                });
+                if (!res.ok) {
+                    console.error('Failed to delete item from server');
+                    allItems = previousItems;
+                    saveLocalCachedData();
+                    renderCurrentView();
+                }
+            } catch (err) {
+                console.error('Error deleting item:', err);
+                allItems = previousItems;
+                saveLocalCachedData();
+                renderCurrentView();
+            }
         }
 
         async function deleteFolder(folderId) {
             if (!confirm('Delete this folder and all items inside it?')) return;
+            const previousFolders = [...allFolders];
+            const previousItems = [...allItems];
+
             allFolders = allFolders.filter(f => f.id !== folderId);
             allItems = allItems.filter(i => (i.parentId || null) !== folderId);
             saveLocalCachedData();
             renderCurrentView();
 
-            await performLibrarySync({
-                upserts: { collections: [], folders: [], items: [], tags: [] },
-                deletes: { folder_ids: [folderId], item_ids: [], collection_ids: [], tag_ids: [] }
-            });
+            try {
+                const res = await TabsomeAuth.apiFetch(`${API_BASE_URL}/api/v3/users/me/library/collections/${activeCollectionId}/folders/${folderId}`, {
+                    method: 'DELETE'
+                });
+                if (!res.ok) {
+                    console.error('Failed to delete folder from server');
+                    allFolders = previousFolders;
+                    allItems = previousItems;
+                    saveLocalCachedData();
+                    renderCurrentView();
+                }
+            } catch (err) {
+                console.error('Error deleting folder:', err);
+                allFolders = previousFolders;
+                allItems = previousItems;
+                saveLocalCachedData();
+                renderCurrentView();
+            }
         }
 
         // =========================================================================
         // EVENT HANDLERS & INITIALIZATION
         // =========================================================================
-        let initialSyncPerformed = false;
-        let lastSyncedUserId = null;
+        let initialLoadPerformed = false;
+        let lastUserId = null;
 
         document.addEventListener('DOMContentLoaded', async () => {
             loadLocalCachedData();
@@ -1488,39 +1871,63 @@
                     const userId = user ? (user.id || user.email) : null;
 
                     if (!user) {
-                        lastSyncedUserId = null;
-                        initialSyncPerformed = false;
+                        lastUserId = null;
+                        initialLoadPerformed = false;
                         loadingSkeleton.classList.add('hidden');
                         libraryContainer.classList.add('hidden');
                         emptyState.classList.add('hidden');
                         unauthPrompt.classList.remove('hidden');
                     } else {
                         unauthPrompt.classList.add('hidden');
-                        // Only perform automatic sync once on initial session discovery / login
-                        if (!initialSyncPerformed || lastSyncedUserId !== userId) {
-                            initialSyncPerformed = true;
-                            lastSyncedUserId = userId;
-                            loadingSkeleton.classList.remove('hidden');
-                            await performLibrarySync();
-                            loadingSkeleton.classList.add('hidden');
+                        if (!initialLoadPerformed || lastUserId !== userId) {
+                            initialLoadPerformed = true;
+                            lastUserId = userId;
+                            await loadLibrary();
                         } else {
+                            renderCollectionSelector();
                             renderCurrentView();
                         }
                     }
                 });
             }
 
-            // Manual Sync Trigger
-            syncNowBtn.addEventListener('click', () => performLibrarySync());
+            // Refresh Trigger
+            refreshBtn?.addEventListener('click', () => refreshLibraryData());
 
-            // Collection Switcher
-            collectionSelect.addEventListener('change', (e) => {
-                activeCollectionId = e.target.value;
-                activeCollectionData = collectionsList.find(c => c.id === activeCollectionId) || null;
-                folderHistory = [{ id: null, name: activeCollectionData?.name || 'My Library' }];
-                currentFolderId = null;
-                saveLocalCachedData();
-                renderCurrentView();
+            // Collection Switcher Dropdown Toggle
+            collectionDropdownBtn?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                collectionDropdownMenu.classList.toggle('hidden');
+            });
+
+            // Close collection dropdown on document click
+            document.addEventListener('click', (e) => {
+                if (collectionDropdownWrapper && !collectionDropdownWrapper.contains(e.target)) {
+                    collectionDropdownMenu.classList.add('hidden');
+                }
+            });
+
+            // Collection Switcher List Click (delegated)
+            collectionsListContainer?.addEventListener('click', async (e) => {
+                const copyBtn = e.target.closest('.copy-col-id-btn');
+                if (copyBtn) {
+                    e.stopPropagation();
+                    const idToCopy = copyBtn.dataset.id;
+                    if (idToCopy) {
+                        navigator.clipboard.writeText(idToCopy);
+                        copyBtn.innerHTML = '<i class="fas fa-check text-emerald-400"></i>';
+                        setTimeout(() => {
+                            copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                        }, 1600);
+                    }
+                    return;
+                }
+
+                const row = e.target.closest('.collection-item-row');
+                if (row) {
+                    const colId = row.dataset.collectionId;
+                    await switchCollection(colId);
+                }
             });
 
             // Tag Chips Filter (delegated)
@@ -1566,7 +1973,7 @@
                 renderCurrentView();
             });
 
-            // Folder Click Navigation (delegated)
+            // Folder & Item Click Navigation (delegated)
             libraryContainer.addEventListener('click', (e) => {
                 const folderCard = e.target.closest('.folder-card');
                 if (folderCard && !e.target.closest('.delete-folder-btn')) {
@@ -1630,19 +2037,27 @@
                 }
             });
 
-            // Modal Controls
+            // Modals Management
             const openNewLinkModalBtn = document.getElementById('openNewLinkModalBtn');
             const openNewNoteModalBtn = document.getElementById('openNewNoteModalBtn');
             const openNewFolderModalBtn = document.getElementById('openNewFolderModalBtn');
 
             function openModal(modal) {
-                modal.classList.remove('hidden');
+                if (modal) modal.classList.remove('hidden');
             }
             function closeModals() {
-                linkModal.classList.add('hidden');
-                noteModal.classList.add('hidden');
-                folderModal.classList.add('hidden');
+                linkModal?.classList.add('hidden');
+                noteModal?.classList.add('hidden');
+                folderModal?.classList.add('hidden');
+                collectionModal?.classList.add('hidden');
             }
+
+            openNewCollectionModalBtn?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                collectionDropdownMenu.classList.add('hidden');
+                collectionForm.reset();
+                openModal(collectionModal);
+            });
 
             openNewLinkModalBtn?.addEventListener('click', () => {
                 linkForm.reset();
@@ -1664,13 +2079,26 @@
             });
 
             // Close on backdrop click
-            [linkModal, noteModal, folderModal].forEach(modal => {
-                modal.addEventListener('click', (e) => {
+            [linkModal, noteModal, folderModal, collectionModal].forEach(modal => {
+                modal?.addEventListener('click', (e) => {
                     if (e.target === modal) closeModals();
                 });
             });
 
             // Forms Submit Handlers
+            collectionForm?.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = document.getElementById('collectionNameInput').value.trim();
+                const desc = document.getElementById('collectionDescInput').value.trim();
+                const color = document.querySelector('input[name="colColor"]:checked')?.value || '#ec4899';
+                const icon = document.querySelector('input[name="colIcon"]:checked')?.value || 'folder';
+                const isDefault = document.getElementById('collectionIsDefaultInput').checked;
+
+                if (!name) return;
+                closeModals();
+                await createNewCollection(name, desc, color, icon, isDefault);
+            });
+
             linkForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const url = document.getElementById('linkUrlInput').value;
